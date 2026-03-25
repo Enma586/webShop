@@ -41,12 +41,16 @@ export function UserProvider({children}){
             const res = await getUserRequest();
             return res.data;
         } catch (error) {
-            throw error
             console.log(error)
+             throw error
         }
     }
 
-    const createUser
+    const 
+
+    const createUser = async =>{
+        
+    }
 
 
     return (
