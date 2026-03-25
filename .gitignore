@@ -1,0 +1,18 @@
+# --- Ignorar carpetas de dependencias ---
+**/node_modules/
+frontend-webShop/node_modules/
+backend-webShop/node_modules/
+
+# --- Ignorar variables de entorno ---
+**/.env
+frontend-webShop/.env
+backend-webShop/.env
+.env.local
+
+# --- Archivos de compilación o build ---
+frontend-webShop/dist/
+frontend-webShop/build/
+backend-webShop/dist/
+
+# --- Otros ---
+.DS_Store
