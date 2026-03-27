@@ -6,14 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class UserController extends Controller
 {
-    /**
-     * GET General - List all users
-     */
     public function index()
     {
         try {
@@ -23,40 +21,22 @@ class UserController extends Controller
                 'data' => $users
             ], 200);
         } catch (Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to fetch users'
-            ], 500);
+            return response()->json(['status' => 'error', 'message' => 'Failed to fetch users'], 500);
         }
     }
 
-    /**
-     * GET by ID - Show a specific user
-     */
     public function show($id)
     {
         try {
             $user = User::findOrFail($id);
-            return response()->json([
-                'status' => 'success',
-                'data' => $user
-            ], 200);
+            return response()->json(['status' => 'success', 'data' => $user], 200);
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'User not found'
-            ], 404);
+            return response()->json(['status' => 'error', 'message' => 'User not found'], 404);
         } catch (Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'An error occurred'
-            ], 500);
+            return response()->json(['status' => 'error', 'message' => 'An error occurred'], 500);
         }
     }
 
-    /**
-     * POST - Create a new user
-     */
     public function store(Request $request)
     {
         try {
@@ -65,34 +45,29 @@ class UserController extends Controller
                 'username' => 'required|string|unique:users,username',
                 'email'    => 'required|email|unique:users,email',
                 'password' => 'required|min:8',
-                'role'     => 'required|in:admin,customer'
+                'role'     => 'required|in:admin,customer',
+                'status'   => 'required|in:active,banned,inactive' // <-- AGREGADO
             ]);
 
             if ($validator->fails()) {
-                return response()->json([
-                    'status' => 'fail',
-                    'errors' => $validator->errors()
-                ], 422);
+                return response()->json(['status' => 'fail', 'errors' => $validator->errors()], 422);
             }
 
-            $user = User::create($request->all());
+            $data = $request->all();
+            $data['password'] = Hash::make($data['password']); // Encriptar siempre
+
+            $user = User::create($data);
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'User created successfully',
-                'user' => $user
+                'data' => $user
             ], 201);
         } catch (Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'User creation failed'
-            ], 500);
+            return response()->json(['status' => 'error', 'message' => 'User creation failed'], 500);
         }
     }
 
-    /**
-     * PUT/PATCH - Update a user
-     */
     public function update(Request $request, $id)
     {
         try {
@@ -103,59 +78,46 @@ class UserController extends Controller
                 'username' => 'sometimes|string|unique:users,username,' . $id,
                 'email'    => 'sometimes|email|unique:users,email,' . $id,
                 'role'     => 'sometimes|in:admin,customer',
-                'password' => 'sometimes|min:8'
+                'status'   => 'sometimes|in:active,banned,inactive', // <-- AGREGADO
+                'password' => 'sometimes|nullable|min:8'
             ]);
 
             if ($validator->fails()) {
-                return response()->json([
-                    'status' => 'fail',
-                    'errors' => $validator->errors()
-                ], 422);
+                return response()->json(['status' => 'fail', 'errors' => $validator->errors()], 422);
             }
 
-            $user->update($request->all());
+            $data = $request->all();
+            
+            if (!empty($data['password'])) {
+                $data['password'] = Hash::make($data['password']);
+            } else {
+                unset($data['password']);
+            }
+
+            $user->update($data);
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'User updated successfully',
-                'user' => $user
+                'data' => $user
             ], 200);
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'User not found'
-            ], 404);
+            return response()->json(['status' => 'error', 'message' => 'User not found'], 404);
         } catch (Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Update failed'
-            ], 500);
+            return response()->json(['status' => 'error', 'message' => 'Update failed'], 500);
         }
     }
 
-    /**
-     * DELETE - Remove a user
-     */
     public function destroy($id)
     {
         try {
             $user = User::findOrFail($id);
             $user->delete();
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'User deleted successfully'
-            ], 200);
+            return response()->json(['status' => 'success', 'message' => 'User deleted successfully'], 200);
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'User not found'
-            ], 404);
+            return response()->json(['status' => 'error', 'message' => 'User not found'], 404);
         } catch (Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Delete failed'
-            ], 500);
+            return response()->json(['status' => 'error', 'message' => 'Delete failed'], 500);
         }
     }
 }

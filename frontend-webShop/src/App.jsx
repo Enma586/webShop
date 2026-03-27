@@ -15,6 +15,12 @@ import MainLayout from './layouts/MainLayout'
 import { LoadingScreen } from './components/ui/LoadingScreen'
 import {ProtectedRoute} from './ProtectedRoute'
 import CategoryPage from './pages/admin/CategoryPage'
+import { UserProvider } from './context/UserContext'
+import UserPage from './pages/admin/UserPage'
+import { OrderProvider } from './context/OrderContext'
+import OrderPage from './pages/admin/OrderPage'
+import { InvoiceProvider } from './context/InvoiceContext'
+import AdminDashboard from './pages/admin/AdminDashboard'
 
 function AppRoutes() {
   const { loading } = useAuth(); 
@@ -31,6 +37,9 @@ function AppRoutes() {
         <Route element={<ProtectedRoute />}>
         <Route path="/admin/products" element={<ProductPage />} />
         <Route path="/admin/categories" element={<CategoryPage />} />
+        <Route path="/admin/users" element={<UserPage />} />
+        <Route path="/admin/orders" element={<OrderPage />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
           {/* Solo necesitamos la ruta del Inventario. 
               El formulario ahora vive DENTRO de ProductPage como un Modal */}
           
@@ -47,16 +56,21 @@ export default function App() {
   return (
     <NotificationProvider>
       <AuthProvider>
+        <UserProvider>
         <CategoryProvider>
           <ProductProvider>
+            <InvoiceProvider>
+            <OrderProvider>
             <TooltipProvider delayDuration={0}>
               <BrowserRouter>
-
                 <AppRoutes />
               </BrowserRouter>
             </TooltipProvider>
+            </OrderProvider>
+            </InvoiceProvider>
           </ProductProvider>
         </CategoryProvider>
+        </UserProvider>
       </AuthProvider>
     </NotificationProvider>
   )

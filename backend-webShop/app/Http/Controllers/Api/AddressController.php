@@ -10,17 +10,15 @@ use Exception;
 
 class AddressController extends Controller
 {
-    /**
-     * Display a listing of addresses.
-     * Admin: All addresses | Customer: Only their own.
-     */
     public function index(Request $request)
     {
         $user = $request->user();
 
-        $query = ($user->role === 'admin') 
-            ? Address::query() 
-            : Address::where('user_id', $user->id);
+        $query = Address::with(['department', 'municipality']);
+
+        if ($user->role !== 'admin') {
+            $query->where('user_id', $user->id);
+        }
 
         return response()->json([
             'status' => 'success',
@@ -28,20 +26,15 @@ class AddressController extends Controller
         ], 200);
     }
 
-    /**
-     * Store a newly created address.
-     */
     public function store(StoreAddressRequest $request)
     {
         try {
             $user = $request->user();
             
-            // Determine the owner of the address
             $targetUserId = ($user->role === 'admin' && $request->has('user_id')) 
                 ? $request->user_id 
                 : $user->id;
 
-            // Handle default address logic
             if ($request->is_default) {
                 Address::where('user_id', $targetUserId)->update(['is_default' => false]);
             }
@@ -51,23 +44,26 @@ class AddressController extends Controller
                 ['user_id' => $targetUserId]
             ));
 
-            return response()->json(['status' => 'success', 'data' => $address], 201);
+            return response()->json([
+                'status' => 'success', 
+                'data' => $address->load(['department', 'municipality'])
+            ], 201);
         } catch (Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 
-    /**
-     * Display the specified address.
-     */
     public function show(Request $request, $id)
     {
         $user = $request->user();
 
-        // Check ownership or admin role
-        $address = ($user->role === 'admin')
-            ? Address::find($id)
-            : Address::where('user_id', $user->id)->find($id);
+        $query = Address::with(['department', 'municipality']);
+
+        if ($user->role !== 'admin') {
+            $query->where('user_id', $user->id);
+        }
+
+        $address = $query->find($id);
 
         if (!$address) {
             return response()->json(['status' => 'fail', 'message' => 'Address not found'], 404);
@@ -76,9 +72,6 @@ class AddressController extends Controller
         return response()->json(['status' => 'success', 'data' => $address], 200);
     }
 
-    /**
-     * Update the specified address.
-     */
     public function update(StoreAddressRequest $request, $id)
     {
         try {
@@ -92,22 +85,21 @@ class AddressController extends Controller
                 return response()->json(['status' => 'fail', 'message' => 'Unauthorized or Not Found'], 404);
             }
 
-            // Handle default logic if is_default is being set to true
             if ($request->is_default) {
                 Address::where('user_id', $address->user_id)->update(['is_default' => false]);
             }
 
             $address->update($request->validated());
 
-            return response()->json(['status' => 'success', 'data' => $address], 200);
+            return response()->json([
+                'status' => 'success', 
+                'data' => $address->load(['department', 'municipality'])
+            ], 200);
         } catch (Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 
-    /**
-     * Remove the specified address.
-     */
     public function destroy(Request $request, $id)
     {
         $user = $request->user();

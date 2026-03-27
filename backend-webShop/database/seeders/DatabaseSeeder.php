@@ -5,14 +5,21 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Department;
+use App\Models\Municipality;
+use App\Models\Address;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Invoice;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        User::create([
+        $admin = User::create([
             'name'     => 'Enma Admin',
             'username' => 'enma_style',
             'email'    => 'admin@shop.com',
@@ -21,91 +28,75 @@ class DatabaseSeeder extends Seeder
             'status'   => 'active',
         ]);
 
-        $men = Category::create([
-            'name' => 'Men\'s Wear',
-            'slug' => 'mens-wear',
-            'description' => 'Latest trends in male fashion',
-        ]);
-
-        $women = Category::create([
-            'name' => 'Women\'s Collection',
-            'slug' => 'womens-collection',
-            'description' => 'Elegant and casual clothing for women',
-        ]);
-
-        $acc = Category::create([
-            'name' => 'Accessories',
-            'slug' => 'accessories',
-            'description' => 'Bags, belts, and jewelry',
-        ]);
-
-        Product::create([
-            'category_id' => $men->id,
-            'name'        => 'Oversized Cotton Tee',
-            'slug'        => 'oversized-cotton-tee-black',
-            'description' => '100% heavy cotton, drop shoulder fit in Midnight Black.',
-            'price'       => 29.99,
-            'stock'       => 50,
-            'image'       => null,
-        ]);
-
-        Product::create([
-            'category_id' => $men->id,
-            'name'        => 'Slim Fit Chino Pants',
-            'slug'        => 'slim-fit-chinos-khaki',
-            'description' => 'Classic khaki chinos with stretch fabric for comfort.',
-            'price'       => 45.00,
-            'stock'       => 30,
-            'image'       => null,
-        ]);
-
-        Product::create([
-            'category_id' => $women->id,
-            'name'        => 'Silk Evening Dress',
-            'slug'        => 'silk-evening-dress-red',
-            'description' => 'Premium silk dress with a minimalist aesthetic.',
-            'price'       => 120.00,
-            'stock'       => 12,
-            'image'       => null,
-        ]);
-
-        Product::create([
-            'category_id' => $women->id,
-            'name'        => 'High-Waist Denim',
-            'slug'        => 'high-waist-denim-blue',
-            'description' => 'Vintage wash high-waist jeans, straight leg cut.',
-            'price'       => 55.50,
-            'stock'       => 25,
-            'image'       => null,
-        ]);
-
-        Product::create([
-            'category_id' => $acc->id,
-            'name'        => 'Leather Minimalist Wallet',
-            'slug'        => 'leather-wallet-tan',
-            'description' => 'Genuine leather card holder with RFID protection.',
-            'price'       => 19.99,
-            'stock'       => 100,
-            'image'       => null,
-        ]);
-
-        Product::create([
-            'category_id' => $acc->id,
-            'name'        => 'Retro Sunglasses',
-            'slug'        => 'retro-sunglasses-gold',
-            'description' => 'Gold-rimmed aviator style with polarized lenses.',
-            'price'       => 35.00,
-            'stock'       => 0,
-            'image'       => null,
-        ]);
-
-        User::create([
-            'name'     => 'Usuario Mal portado',
-            'username' => 'el_baneado',
-            'email'    => 'bad@user.com',
+        $customer = User::create([
+            'name'     => 'Juan Pérez',
+            'username' => 'juan_perez',
+            'email'    => 'juan@example.com',
             'password' => Hash::make('password123'),
             'role'     => 'customer',
-            'status'   => 'banned', // <--- Aquí la clave
+            'status'   => 'active',
         ]);
+
+        $sonsonate = Department::create(['name' => 'Sonsonate']);
+        $muniSonsonate = Municipality::create(['department_id' => $sonsonate->id, 'name' => 'Sonsonate Centro']);
+
+        $address = Address::create([
+            'user_id' => $customer->id,
+            'department_id' => $sonsonate->id,
+            'municipality_id' => $muniSonsonate->id,
+            'address_line' => 'Colonia La Sensacional, Calle Principal #5',
+            'phone' => '7788-9900',
+            'is_default' => true,
+        ]);
+
+        $catMens = Category::create(['name' => 'Men\'s Wear', 'slug' => 'mens-wear']);
+        
+        $p1 = Product::create(['category_id' => $catMens->id, 'name' => 'Oversized Cotton Tee', 'slug' => 'oversized-cotton-tee', 'price' => 25.00, 'stock' => 50]);
+        $p2 = Product::create(['category_id' => $catMens->id, 'name' => 'Cargo Pants', 'slug' => 'cargo-pants', 'price' => 35.00, 'stock' => 45]);
+
+        $salesData = [
+            ['num' => '001', 'days' => 40, 'total' => 200.00, 'prod' => $p1, 'qty' => 8],
+            ['num' => '002', 'days' => 15, 'total' => 125.00, 'prod' => $p1, 'qty' => 5],
+            ['num' => '003', 'days' => 9,  'total' => 70.00,  'prod' => $p2, 'qty' => 2],
+            ['num' => '004', 'days' => 2,  'total' => 50.00,  'prod' => $p1, 'qty' => 2],
+            ['num' => '005', 'days' => 0,  'total' => 105.00, 'prod' => $p2, 'qty' => 3],
+        ];
+
+        foreach ($salesData as $sale) {
+            $date = Carbon::now()->subDays($sale['days']);
+
+            $order = Order::create([
+                'order_number' => "ORD-2026-{$sale['num']}",
+                'user_id' => $customer->id,
+                'address_id' => $address->id,
+                'total' => $sale['total'],
+                'status' => 'completed',
+                'payment_method' => 'card',
+                'created_at' => $date,
+                'updated_at' => $date
+            ]);
+
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $sale['prod']->id,
+                'product_name' => $sale['prod']->name,
+                'quantity' => $sale['qty'],
+                'price' => $sale['prod']->price,
+                'created_at' => $date,
+                'updated_at' => $date
+            ]);
+
+            Invoice::create([
+                'invoice_number' => "INV-2026-{$sale['num']}",
+                'order_id' => $order->id,
+                'user_id' => $customer->id,
+                'subtotal' => $sale['total'], 
+                'tax' => 0.00, 
+                'total' => $sale['total'],
+                'status' => 'paid',
+                'created_at' => $date,
+                'updated_at' => $date
+            ]);
+        }
     }
 }

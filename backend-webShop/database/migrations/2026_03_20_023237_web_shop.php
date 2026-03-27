@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // --- 1. SISTEMA Y SESIONES ---
+        // --- 1. IDENTIDAD Y SESIONES ---
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -16,14 +16,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            
-            // CAMBIO 1: Rol por defecto es 'customer'
             $table->string('role')->default('customer'); 
-            
-            // CAMBIO 2: Estado del usuario (Activo por defecto)
-            // Usamos enum para que solo acepte estos 3 valores específicos
             $table->enum('status', ['active', 'inactive', 'banned'])->default('active');
-            
             $table->rememberToken();
             $table->timestamps();
         });
@@ -43,7 +37,7 @@ return new class extends Migration
             $table->integer('last_activity')->index();
         });
 
-        // --- 2. CATEGORÍAS Y PRODUCTOS ---
+        // --- 2. INVENTARIO Y CATÁLOGO ---
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -66,30 +60,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // --- 3. LOGS E HISTORIAL ---
-        Schema::create('product_histories', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->decimal('old_price', 12, 2)->nullable();
-            $table->decimal('new_price', 12, 2)->nullable();
-            $table->json('old_data')->nullable(); 
-            $table->string('action');
-            $table->string('slug')->nullable();   
-            $table->timestamp('created_at')->useCurrent();
-        });
-
-        Schema::create('inventory_logs', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('movement_type'); 
-            $table->integer('quantity');
-            $table->string('reason')->nullable();
-            $table->timestamps();
-        });
-
-        // --- 4. UBICACIONES Y DIRECCIONES ---
+        // --- 3. UBICACIONES Y DIRECCIONES ---
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -114,38 +85,76 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // --- 5. FACTURACIÓN (Invoices) ---
-        Schema::create('invoices', function (Blueprint $table) {
+        // --- 4. VENTAS Y LOGÍSTICA (Orders) ---
+        Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->string('invoice_number')->unique(); 
+            $table->string('order_number')->unique();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->decimal('subtotal', 12, 2);
-            $table->decimal('tax', 12, 2);
+            $table->foreignId('address_id')->nullable()->constrained()->onDelete('set null');
             $table->decimal('total', 12, 2);
-            $table->enum('status', ['paid', 'pending', 'cancelled'])->default('pending');
+            $table->enum('status', ['pending', 'processing', 'shipped', 'completed', 'cancelled'])->default('pending');
+            $table->string('payment_method')->nullable();
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
 
-        Schema::create('invoice_items', function (Blueprint $table) {
+        Schema::create('order_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('invoice_id')->constrained()->onDelete('cascade');
+            $table->foreignId('order_id')->constrained()->onDelete('cascade');
             $table->foreignId('product_id')->nullable()->constrained()->onDelete('set null');
             $table->string('product_name');
             $table->integer('quantity');
             $table->decimal('price', 12, 2);
             $table->timestamps();
         });
+
+        // --- 5. FACTURACIÓN (Se genera al completar la Order) ---
+        Schema::create('invoices', function (Blueprint $table) {
+            $table->id();
+            $table->string('invoice_number')->unique();
+            $table->foreignId('order_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->decimal('subtotal', 12, 2);
+            $table->decimal('tax', 12, 2);
+            $table->decimal('total', 12, 2);
+            $table->enum('status', ['paid', 'unpaid', 'cancelled'])->default('unpaid');
+            $table->timestamps();
+        });
+
+        // --- 6. AUDITORÍA Y LOGS ---
+        Schema::create('product_histories', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->decimal('old_price', 12, 2)->nullable();
+            $table->decimal('new_price', 12, 2)->nullable();
+            $table->json('old_data')->nullable(); 
+            $table->string('action');
+            $table->string('slug')->nullable();   
+            $table->timestamp('created_at')->useCurrent();
+        });
+
+        Schema::create('inventory_logs', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('movement_type'); 
+            $table->integer('quantity');
+            $table->string('reason')->nullable();
+            $table->timestamps();
+        });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('invoice_items');
+        Schema::dropIfExists('inventory_logs');
+        Schema::dropIfExists('product_histories');
         Schema::dropIfExists('invoices');
+        Schema::dropIfExists('order_items');
+        Schema::dropIfExists('orders');
         Schema::dropIfExists('addresses');
         Schema::dropIfExists('municipalities');
         Schema::dropIfExists('departments');
-        Schema::dropIfExists('inventory_logs');
-        Schema::dropIfExists('product_histories');
         Schema::dropIfExists('products');
         Schema::dropIfExists('categories');
         Schema::dropIfExists('cache');

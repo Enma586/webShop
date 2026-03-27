@@ -6,62 +6,84 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\CartItem;
-use App\Http\Requests\CheckoutRequest;
+use App\Models\Product;
+use App\Models\InventoryLog;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
-    public function store(CheckoutRequest $request)
+    public function store(Request $request)
     {
         $user = $request->user();
-
-        // 1. Search for the user's cart items with product details (price, stock)
         $cartItems = CartItem::with('product')->where('user_id', $user->id)->get();
 
         if ($cartItems->isEmpty()) {
-            return response()->json(['message' => 'No puedes comprar con un carrito vacío'], 400);
+            return response()->json(['status' => 'error', 'message' => 'Your cart is empty'], 400);
         }
 
-        // 2. We Calculate the total price of the order (sum of price * quantity)
+        foreach ($cartItems as $item) {
+            if ($item->product->stock < $item->quantity) {
+                return response()->json([
+                    'status' => 'error', 
+                    'message' => "Insufficient stock for: {$item->product->name}"
+                ], 422);
+            }
+        }
+
         $total = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
 
-        // 3. Start a DB transaction to ensure data integrity
         try {
             return DB::transaction(function () use ($user, $request, $cartItems, $total) {
                 
-        
                 $order = Order::create([
-                    'user_id'    => $user->id,
-                    'address_id' => $request->address_id,
-                    'total'      => $total,
-                    'status'     => 'paid' 
+                    'order_number'   => 'ORD-' . strtoupper(Str::random(8)),
+                    'user_id'        => $user->id,
+                    'address_id'     => $request->address_id,
+                    'total'          => $total,
+                    'status'         => 'pending',
+                    'payment_method' => $request->payment_method ?? 'transfer',
+                    'notes'          => $request->notes
                 ]);
 
-                
                 foreach ($cartItems as $cartItem) {
+                    $product = $cartItem->product;
+
                     OrderItem::create([
-                        'order_id'   => $order->id,
-                        'product_id' => $cartItem->product_id,
-                        'quantity'   => $cartItem->quantity,
-                        'unit_price' => $cartItem->product->price 
+                        'order_id'     => $order->id,
+                        'product_id'   => $product->id,
+                        'product_name' => $product->name,
+                        'quantity'     => $cartItem->quantity,
+                        'price'        => $product->price 
                     ]);
-                    
-         
+
+                    $product->decrement('stock', $cartItem->quantity);
+
+                    InventoryLog::create([
+                        'product_id'    => $product->id,
+                        'user_id'       => $user->id,
+                        'movement_type' => 'sale',
+                        'quantity'      => $cartItem->quantity,
+                        'reason'        => "Order #{$order->order_number}"
+                    ]);
                 }
 
-              
                 CartItem::where('user_id', $user->id)->delete();
 
                 return response()->json([
                     'status'  => 'success',
-                    'message' => '¡Compra realizada con éxito!',
-                    'order'   => $order->id
+                    'message' => 'Purchase completed successfully!',
+                    'order'   => [
+                        'id' => $order->id,
+                        'number' => $order->order_number
+                    ]
                 ], 201);
             });
         } catch (\Exception $e) {
             return response()->json([
                 'status'  => 'error',
-                'message' => 'Fallo crítico al procesar la orden',
+                'message' => 'Critical failure during checkout',
                 'details' => $e->getMessage()
             ], 500);
         }

@@ -55,7 +55,7 @@ export function ProductProvider({ children }) {
 
             return res.data;
         } catch (error) {
-            console.error("Error al crear producto:", error);
+            console.error("Error to create product:", error);
             const errorMsg = error.response?.data?.message || "ERROR CREATING PRODUCT";
             notify(errorMsg.toUpperCase(), "error");
             throw error;
@@ -78,7 +78,7 @@ export function ProductProvider({ children }) {
 
             return res.data;
         } catch (error) {
-            console.error("Error al actualizar producto:", error);
+            console.error("Error to updater product:", error);
             const errorMsg = error.response?.data?.message || "ERROR UPDATING PRODUCT";
             notify(errorMsg.toUpperCase(), "error");
             throw error;

@@ -8,12 +8,9 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    /**
-     * ADMIN: List all orders in the system
-     */
     public function index()
     {
-        $orders = Order::with(['user', 'items.product'])->latest()->get();
+        $orders = Order::with(['user', 'items', 'address.department', 'address.municipality'])->latest()->get();
         
         return response()->json([
             'status' => 'success',
@@ -21,13 +18,10 @@ class OrderController extends Controller
         ]);
     }
 
-    /**
-     * CUSTOMER: List only orders belonging to the authenticated user
-     */
     public function userOrders(Request $request)
     {
         $orders = Order::where('user_id', $request->user()->id)
-            ->with('items.product')
+            ->with(['items', 'invoice'])
             ->latest()
             ->get();
 
@@ -37,42 +31,36 @@ class OrderController extends Controller
         ]);
     }
 
-    /**
-     * CUSTOMER: View specific order details if they own it
-     */
-    public function showUserOrder(Request $request, $id)
+    public function show($id, Request $request)
     {
-        $order = Order::where('user_id', $request->user()->id)
-            ->with('items.product', 'address')
-            ->find($id);
+        $query = Order::with(['items', 'address.department', 'address.municipality', 'invoice']);
+
+        if ($request->user()->role !== 'admin') {
+            $query->where('user_id', $request->user()->id);
+        }
+
+        $order = $query->find($id);
 
         if (!$order) {
-            return response()->json(['message' => 'Order not found'], 404);
+            return response()->json(['status' => 'error', 'message' => 'Order not found'], 404);
         }
 
         return response()->json(['status' => 'success', 'data' => $order]);
     }
 
-    /**
-     * ADMIN: Update Order Status (Shipped, Delivered, Canceled, etc.)
-     */
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:pending,paid,shipped,delivered,canceled'
+            'status' => 'required|in:pending,processing,shipped,completed,cancelled'
         ]);
 
-        $order = Order::find($id);
-
-        if (!$order) {
-            return response()->json(['message' => 'Order not found'], 404);
-        }
-
+        $order = Order::findOrFail($id);
         $order->update(['status' => $request->status]);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Order status updated to ' . $request->status
+            'message' => 'Order status updated to ' . $request->status,
+            'data' => $order->load('invoice')
         ]);
     }
 }

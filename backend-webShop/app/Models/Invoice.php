@@ -3,13 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Invoice extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'invoice_number', 
+        'order_id', 
         'user_id', 
         'subtotal', 
         'tax', 
@@ -17,14 +19,12 @@ class Invoice extends Model
         'status'
     ];
 
-
-    public function items(): HasMany
+    public function order()
     {
-        return $this->hasMany(InvoiceItem::class);
+        return $this->belongsTo(Order::class);
     }
 
-
-    public function user(): BelongsTo
+    public function user()
     {
         return $this->belongsTo(User::class);
     }

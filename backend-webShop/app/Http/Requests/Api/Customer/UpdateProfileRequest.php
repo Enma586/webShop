@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\Customer;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateProfileRequest extends FormRequest
 {
@@ -13,12 +14,25 @@ class UpdateProfileRequest extends FormRequest
 
     public function rules(): array
     {
-        // Usamos $this->user()->id para obtener el ID del usuario que envía el token
+        $userId = $this->user()->id;
+
         return [
-            'name'     => 'sometimes|string|max:100',
-            'username' => 'sometimes|string|max:50|unique:users,username,' . $this->user()->id,
-            'email'    => 'sometimes|email|max:150|unique:users,email,' . $this->user()->id,
-            'password' => 'sometimes|min:8|confirmed',
+            'name'     => 'sometimes|required|string|max:100',
+            'username' => [
+                'sometimes',
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('users')->ignore($userId),
+            ],
+            'email'    => [
+                'sometimes',
+                'required',
+                'email',
+                'max:150',
+                Rule::unique('users')->ignore($userId),
+            ],
+            'password' => 'sometimes|nullable|min:8|confirmed',
         ];
     }
 
