@@ -11,27 +11,28 @@ import loginBg from "@/assets/login-bg.png";
 export default function LoginPage() {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const navigate = useNavigate();
-    const { signin, loading, isAuthenticated } = useAuth();
+    const { signin, loading, isAuthenticated, user } = useAuth();
     const [showPassword, setShowPassword] = useState(false);
 
-
     useEffect(() => {
-        if (isAuthenticated) navigate('/');
-    }, [isAuthenticated, navigate]);
+        if (isAuthenticated && user) {
+            if (user.role === 'admin') {
+                navigate('/admin/dashboard', { replace: true });
+            } else {
+                navigate('/', { replace: true });
+            }
+        }
+    }, [isAuthenticated, user, navigate]);
 
     const onSubmit = handleSubmit(async (data) => {
         await signin(data);
     });
 
     return (
-        <div className="min-h-screen w-full bg-background flex items-center justify-center p-4 md:p-8 font-sans antialiased transition-colors duration-500">
-            
-            {/* Contenedor Principal con Bordes Rectos y Verdes */}
-            <div className="bg-card w-full max-w-6xl overflow-hidden shadow-[0_0_50px_-12px_rgba(var(--primary),0.2)] flex flex-col lg:flex-row min-h-600px border border-primary/30">
-
-                {/* --- SECCIÓN FORMULARIO (IZQUIERDA) --- */}
+        <div className="min-h-screen w-full bg-background flex items-center justify-center p-4 md:p-8 font-sans antialiased">
+            <div className="bg-card w-full max-w-6xl overflow-hidden shadow-[0_0_50px_-12px_rgba(var(--primary),0.2)] flex flex-col lg:flex-row min-h-150 border border-primary/30">
+                
                 <div className="w-full lg:w-[45%] p-8 md:p-12 flex flex-col justify-center bg-card border-r border-primary/10">
-                    
                     <div className="mb-10 text-center lg:text-left space-y-4">
                         <Button 
                             onClick={() => navigate("/")} 
@@ -50,7 +51,6 @@ export default function LoginPage() {
                     </div>
 
                     <form onSubmit={onSubmit} className="space-y-5">
-                        {/* Separador Técnico */}
                         <div className="relative flex items-center py-2">
                             <div className="grow border-t border-primary/10"></div>
                             <span className="shrink mx-4 text-[9px] font-black text-primary uppercase tracking-[0.4em]">Authorization Required</span>
@@ -106,16 +106,13 @@ export default function LoginPage() {
                     </div>
                 </div>
 
-                {/* --- SECCIÓN IMAGEN/ESTILO (DERECHA) --- */}
                 <div className="hidden lg:flex lg:w-[55%] relative bg-card overflow-hidden">
                     <img
                         src={loginBg}
                         alt="PIBEs SHOP Identity"
                         className="w-full h-full object-cover grayscale-[0.5] contrast-125"
                     />
-                    {/* Overlay Esmeralda de la Marca */}
-                    <div className="absolute inset-0bg-linear-to-tr from-primary/30 via-transparent to-transparent" />
-
+                    <div className="absolute inset-0 bg-linear-to-tr from-primary/30 via-transparent to-transparent" />
                     <div className="absolute bottom-12 left-12 right-12 space-y-4">
                         <div className="bg-card/40 backdrop-blur-md p-6 border border-primary/20 inline-block shadow-2xl">
                             <span className="flex items-center gap-2 text-primary mb-2">
@@ -128,7 +125,6 @@ export default function LoginPage() {
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     );

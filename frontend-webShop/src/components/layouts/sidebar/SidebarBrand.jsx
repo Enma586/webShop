@@ -1,12 +1,17 @@
 import { Link } from "react-router-dom";
 import { SidebarHeader } from "@/components/ui/sidebar";
+import { Terminal } from "lucide-react";
 
 export const SidebarBrand = ({ onNavigate }) => (
-  <SidebarHeader className="h-100px border-b border-border/40 flex items-center px-6 bg-background group-data-[collapsible=icon]:justify-center">
-    <Link to="/" onClick={onNavigate} className="flex flex-col group-data-[collapsible=icon]:hidden">
-      <span className="font-black italic text-primary uppercase text-2xl md:text-3xl tracking-tighter truncate leading-none">
-        PB<br/><span className="text-foreground">SHOP</span>
-      </span>
+  <SidebarHeader className="h-20 flex items-center justify-center border-b border-border/5 bg-background p-0">
+    <Link 
+      to="/" 
+      onClick={onNavigate} 
+      className="flex items-center justify-center w-full h-full transition-all hover:opacity-80"
+    >
+      <div className="flex items-center justify-center w-10 h-10 border border-primary/20 bg-primary/5 transition-all">
+        <Terminal className="w-5 h-5 text-primary stroke-[3px]" />
+      </div>
     </Link>
   </SidebarHeader>
 );

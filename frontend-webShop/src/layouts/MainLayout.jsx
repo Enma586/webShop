@@ -4,6 +4,7 @@ import { useNavbar } from "@/hooks/useNavbar";
 import { SidebarTrigger, SidebarInset, SidebarProvider } from "@/components/ui/sidebar"; 
 import { NavActions } from "@/components/navbar/NavActions";
 import { UserMenu } from "@/components/navbar/UserMenu";
+import { ThemeToggle } from "@/components/Shared/DarkMode/ThemeToggle"; // Importar el toggle
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 
@@ -15,14 +16,12 @@ export default function MainLayout() {
   const isAdmin = user?.role === 'admin';
   const isTryingAdmin = location.pathname.startsWith('/admin');
 
-  // SEGURIDAD: Si no es admin y quiere entrar a rutas /admin, rebote inmediato
   useEffect(() => {
     if (isAuthenticated && !isAdmin && isTryingAdmin) {
       navigate("/", { replace: true });
     }
   }, [isAuthenticated, isAdmin, isTryingAdmin, navigate]);
 
-  // VISTA PÚBLICA (Sin login)
   if (!isAuthenticated) {
     return (
       <div className="flex flex-col w-full min-h-screen bg-background">
@@ -31,6 +30,7 @@ export default function MainLayout() {
             PIBES SHOP
           </Link>
           <div className="flex items-center gap-6">
+            <ThemeToggle />
             <Button onClick={() => navigate("/login")} variant="ghost" className="text-[12px] font-black uppercase tracking-[0.3em] text-muted-foreground h-12">
               Login
             </Button>
@@ -44,21 +44,14 @@ export default function MainLayout() {
     );
   }
 
-  // VISTA AUTENTICADA (Admin y Customer)
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background overflow-hidden">
-        
-        {/* Ahora el Sidebar sale para TODOS los logueados */}
         <AppSidebar />
-        
         <SidebarInset className="flex flex-col flex-1 min-w-0 bg-background m-0! p-0! rounded-none! border-none shadow-none outline-none">
-          
-          <header className="flex h-70px shrink-0 items-center justify-between border-b border-border/40 bg-background px-8 sticky top-0 z-30 w-full">
+          <header className="flex h-17.5 shrink-0 items-center justify-between border-b border-border/40 bg-background px-8 sticky top-0 z-30 w-full">
             <div className="flex items-center gap-0">
-              {/* Botón de sidebar disponible para todos (para ver categorías) */}
               <SidebarTrigger className="h-14 w-14 text-primary hover:bg-primary/5 transition-all rounded-none [&_svg]:size-8" />
-              
               <div className="h-6 w-1px bg-border/40 mx-4" />
               <div className="flex flex-col">
                 <span className="text-[20px] font-black uppercase tracking-[0.4em] text-foreground leading-none">
@@ -75,11 +68,12 @@ export default function MainLayout() {
             <div className="flex items-center gap-4">
               <NavActions count={cartCount} />
               <div className="h-8 w-1px bg-border/40 mx-2" />
+              <ThemeToggle /> {/* Toggle en vista autenticada */}
+              <div className="h-8 w-1px bg-border/40 mx-2" />
               <UserMenu user={user} logout={logout} />
             </div>
           </header>
 
-          {/* Área de contenido principal */}
           <main className="flex-1 w-full bg-background overflow-y-auto custom-scrollbar">
              <Outlet />
           </main>

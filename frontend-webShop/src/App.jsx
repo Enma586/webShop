@@ -21,6 +21,7 @@ import { OrderProvider } from './context/OrderContext'
 import OrderPage from './pages/admin/OrderPage'
 import { InvoiceProvider } from './context/InvoiceContext'
 import AdminDashboard from './pages/admin/AdminDashboard'
+import { ThemeProvider } from './context/ThemeContext'
 
 function AppRoutes() {
   const { loading } = useAuth(); 
@@ -55,6 +56,7 @@ function AppRoutes() {
 export default function App() {
   return (
     <NotificationProvider>
+      <ThemeProvider>
       <AuthProvider>
         <UserProvider>
         <CategoryProvider>
@@ -72,6 +74,7 @@ export default function App() {
         </CategoryProvider>
         </UserProvider>
       </AuthProvider>
+      </ThemeProvider>
     </NotificationProvider>
   )
 }
