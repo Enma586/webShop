@@ -28,9 +28,6 @@ export function UniversalHeader({
             <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter text-foreground leading-none">
               {title} <span className="text-primary/60">{isAdmin ? "System" : "Series"}</span>
             </h1>
-            <p className="text-[10px] font-bold tracking-[0.3em] text-muted-foreground uppercase opacity-50">
-              {subtitle || "Active_Protocol_v3.0"}
-            </p>
           </div>
         </div>
 
@@ -40,7 +37,7 @@ export function UniversalHeader({
             className="h-12 bg-primary text-primary-foreground font-black uppercase tracking-[0.2em] px-8 rounded-none hover:opacity-90 transition-all border-none"
           >
             <Plus className="w-4 h-4 mr-2 stroke-[3px]" /> 
-            New_Entry
+            CREATE
           </Button>
         )}
       </div>
@@ -49,7 +46,7 @@ export function UniversalHeader({
         <div className="relative w-full md:w-96 group border-r border-border">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <Input 
-            placeholder="SEARCH_BY_NAME_OR_ID..." 
+            placeholder="SEARCH" 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="h-12 pl-11 bg-transparent border-none rounded-none font-mono text-[11px] uppercase tracking-widest focus-visible:ring-0"
@@ -66,7 +63,7 @@ export function UniversalHeader({
             <DropdownMenuContent align="start" className="rounded-none border-border bg-background min-w-200px">
               <DropdownMenuItem className="text-[10px] font-black uppercase tracking-widest" onClick={() => onFilterChange("ALL")}>ALL_RESOURCES</DropdownMenuItem>
               <DropdownMenuItem className="text-[10px] font-black uppercase tracking-widest" onClick={() => onFilterChange("ACTIVE")}>ONLY_ACTIVE</DropdownMenuItem>
-              <DropdownMenuItem className="text-[10px] font-black uppercase tracking-widest" onClick={() => onFilterChange("OUT_OF_STOCK")}>OUT_OF_STOCK</DropdownMenuItem>
+              <DropdownMenuItem className="text-[10px] font-black uppercase tracking-widest" onClick={() => onFilterChange("OUT_OF_STOCK")}>OUT OF STOCK</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -74,13 +71,13 @@ export function UniversalHeader({
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-12 px-6 rounded-none text-[10px] font-black uppercase tracking-widest gap-2 hover:bg-primary/10 transition-colors">
                 <SlidersHorizontal size={14} /> 
-                {activeSort ? `SORT:${activeSort.key}` : "SORT_BY"}
+                {activeSort ? `SORT:${activeSort.key}` : "SORT BY"}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="rounded-none border-border bg-background min-w-200px">
-              <DropdownMenuItem className="text-[10px] font-black uppercase tracking-widest" onClick={() => onSortClick('name')}>BY_NAME</DropdownMenuItem>
-              <DropdownMenuItem className="text-[10px] font-black uppercase tracking-widest" onClick={() => onSortClick('price')}>BY_VALUE</DropdownMenuItem>
-              <DropdownMenuItem className="text-[10px] font-black uppercase tracking-widest" onClick={() => onSortClick('stock')}>BY_VOLUME</DropdownMenuItem>
+              <DropdownMenuItem className="text-[10px] font-black uppercase tracking-widest" onClick={() => onSortClick('name')}>BY NAME</DropdownMenuItem>
+              <DropdownMenuItem className="text-[10px] font-black uppercase tracking-widest" onClick={() => onSortClick('price')}>BY VALUE</DropdownMenuItem>
+              <DropdownMenuItem className="text-[10px] font-black uppercase tracking-widest" onClick={() => onSortClick('stock')}>BY VOLUME</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

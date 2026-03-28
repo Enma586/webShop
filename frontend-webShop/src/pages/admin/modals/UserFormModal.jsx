@@ -46,13 +46,13 @@ export default function UserFormModal({ isOpen, onClose, userId = null, isReadOn
   return (
     <UniversalModal 
       isOpen={isOpen} onClose={onClose} 
-      title={userId ? (isCustomer ? "USER.STATUS_OVERRIDE" : "USER.FULL_PATCH") : "USER.INITIALIZE"}
-      subtitle={userId ? `ACCESS_CONTROL_UID_${userId}` : "REGISTERING_NEW_ENTITY"}
+      title={userId ? (isCustomer ? "STATUS OVERRIDE" : "FULL PATCH") : "INITIALIZE"}
+      subtitle={userId ? `ACCESS CONTROL UID ${userId}` : "REGISTERING NEW ENTITY"}
       maxWidth="max-w-6xl"
     >
       <form onSubmit={onSubmit} className="grid grid-cols-1 lg:grid-cols-12 bg-background">
         <div className="lg:col-span-7 p-8 md:p-12 border-r border-border space-y-8">
-          <FormSection number="01" title="IDENTITY_MAPPING" />
+          <FormSection number="01" title="IDENTITY MAPPING" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <FormInput label="Username" icon={UserIcon} {...register("username", { required: true })} disabled={isCustomer} />
             <FormInput label="Full Name" {...register("name", { required: true })} disabled={isCustomer} />
@@ -60,22 +60,22 @@ export default function UserFormModal({ isOpen, onClose, userId = null, isReadOn
           <FormInput label="Email Address" type="email" icon={Mail} {...register("email", { required: true })} disabled={isCustomer} />
           <div className="bg-primary/5 p-4 border border-primary/20">
             <FormSelect label="Node Status (OVERRIDE)" icon={Power} {...register("status")}>
-              <option value="active">ACTIVE_OPERATIONAL</option>
-              <option value="banned">BANNED_RESTRICTED</option>
-              <option value="inactive">INACTIVE_STBY</option>
+              <option value="active">ACTIVE</option>
+              <option value="banned">BANNED</option>
+              <option value="inactive">INACTIVE</option>
             </FormSelect>
           </div>
         </div>
 
         <div className="lg:col-span-5 p-8 md:p-12 bg-muted/10 space-y-8">
-          <FormSection number="02" title="SECURITY_PROTOCOLS" />
-          <FormInput label="Access Key" type="password" icon={Lock} {...register("password", { minLength: 8 })} placeholder={isCustomer ? "ENCRYPTED" : "MIN_8_CHARS"} disabled={isCustomer} />
+          <FormSection number="02" title="SECURITY PROTOCOLS" />
+          <FormInput label="Access Key" type="password" icon={Lock} {...register("password", { minLength: 8 })} placeholder={isCustomer ? "ENCRYPTED" : "MIN 8 CHARS"} disabled={isCustomer} />
           <FormSelect label="Permission Level" icon={UserCog} {...register("role")} disabled={isCustomer}>
-            <option value="customer">CUSTOMER_ASSET</option>
-            <option value="admin">ADMIN_PRIVILEGES</option>
+            <option value="customer">CUSTOMER</option>
+            <option value="admin">ADMIN</option>
           </FormSelect>
         </div>
-        <FormFooter onAbort={onClose} loading={loading} isEdit={!!userId} abortText="ABORT_PATCH" />
+        <FormFooter onAbort={onClose} loading={loading} isEdit={!!userId} abortText="ABORT" />
       </form>
     </UniversalModal>
   );

@@ -26,7 +26,7 @@ export default function AdminDashboard() {
     link.click();
   };
 
-  if (loading) return <div className="flex items-center justify-center min-h-screen bg-background text-primary font-black uppercase text-xs tracking-[0.4em]">Syncing_Financial_Core...</div>;
+  if (loading) return <div className="flex items-center justify-center min-h-screen bg-background text-primary font-black uppercase text-xs tracking-[0.4em]">Syncing Financial Core...</div>;
 
   return (
     <div className="flex flex-col w-full bg-background min-h-screen">
@@ -36,12 +36,11 @@ export default function AdminDashboard() {
             <div className="absolute left-0 top-1 bottom-1 w-2px bg-primary" />
             <div className="space-y-1">
               <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter text-foreground leading-none">Analytics <span className="text-primary/60">System</span></h1>
-              <p className="text-[10px] font-bold tracking-[0.3em] text-muted-foreground uppercase opacity-50">FINANCIAL_REPORTS_V3.0</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <DateRangePicker range={dateRange} setRange={setDateRange} />
-            <button onClick={exportCSV} className="h-10 bg-background text-foreground border border-border font-black text-[9px] uppercase tracking-[0.2em] px-6 hover:bg-muted transition-all">Export_CSV</button>
+            <button onClick={exportCSV} className="h-10 bg-background text-foreground border border-border font-black text-[9px] uppercase tracking-[0.2em] px-6 hover:bg-muted transition-all">Export CSV</button>
           </div>
         </div>
       </section>

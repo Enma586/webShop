@@ -44,7 +44,7 @@ export default function ProductPage() {
         <UniversalHeader title="Inventory" subtitle="ASSET_LOGS_V3.0" isAdmin={true} onActionClick={() => setIsModalOpen(true)} searchTerm={searchTerm} setSearchTerm={setSearchTerm} onFilterChange={setFilterType} />
       </section>
       <section className="w-full max-w-1600px mx-auto px-12 pb-24">
-        <UniversalTable data={mappedData} columns={["Resource_Detail", "Unit_Val", "Stock_Level", "Status", "Execute"]} isAdmin={true} onDelete={(id) => { setProductToDelete(products.find(p => p.id === id)); setIsDeleteModalOpen(true); }} onEdit={(id) => { setSelectedProductId(id); setIsModalOpen(true); }} />
+        <UniversalTable data={mappedData} columns={["Resource Detail", "Unit Val", "Stock Level", "Status", "Execute"]} isAdmin={true} onDelete={(id) => { setProductToDelete(products.find(p => p.id === id)); setIsDeleteModalOpen(true); }} onEdit={(id) => { setSelectedProductId(id); setIsModalOpen(true); }} />
       </section>
       <footer className="w-full border-t border-border bg-muted/5 py-10 px-12 mt-auto">
         <UniversalFooter count={mappedData.length} isAdmin={true} />

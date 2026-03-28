@@ -37,10 +37,10 @@ export default function CategoryPage() {
   return (
     <div className="flex flex-col w-full bg-background min-h-screen">
       <section className="w-full max-w-1600px mx-auto pt-16 px-12">
-        <UniversalHeader title="Categories" subtitle="HIERARCHY_MAP_V1.0" isAdmin={true} onActionClick={() => setIsModalOpen(true)} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        <UniversalHeader title="Categories" isAdmin={true} onActionClick={() => setIsModalOpen(true)} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       </section>
       <section className="w-full max-w-1600px mx-auto px-12 pb-24">
-        <UniversalTable data={mappedData} columns={["Category_Name", "Slug_Path", "Parent_Node", "Type", "Execute"]} isAdmin={true} onDelete={(id) => { setCategoryToDelete(categories.find(c => c.id === id)); setIsDeleteModalOpen(true); }} onEdit={(id) => { setSelectedCategoryId(id); setIsModalOpen(true); }} />
+        <UniversalTable data={mappedData} columns={["Category Name", "Slug Path", "Parent Node", "Type", "Execute"]} isAdmin={true} onDelete={(id) => { setCategoryToDelete(categories.find(c => c.id === id)); setIsDeleteModalOpen(true); }} onEdit={(id) => { setSelectedCategoryId(id); setIsModalOpen(true); }} />
       </section>
       <footer className="w-full border-t border-border bg-muted/5 py-10 px-12 mt-auto">
         <UniversalFooter count={mappedData.length} isAdmin={true} />

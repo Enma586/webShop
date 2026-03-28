@@ -57,7 +57,7 @@ export default function ProfileEditModal({ isOpen, onClose }) {
                 <div className="p-8 border-b border-primary/10 flex justify-between items-center bg-muted/5">
                     <div className="flex flex-col">
                         <div className="flex items-center gap-2 mb-1">
-                            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-primary italic">Identity_Update</span>
+                            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-primary italic">Identity Update</span>
                             {isAdmin && (
                                 <div className="flex items-center gap-1 bg-primary/10 px-2 py-0.5 border border-primary/20">
                                     <Cpu size={8} className="text-primary" />
@@ -65,7 +65,7 @@ export default function ProfileEditModal({ isOpen, onClose }) {
                                 </div>
                             )}
                         </div>
-                        <h2 className="text-2xl font-black text-foreground uppercase tracking-tighter italic">Edit_Profile</h2>
+                        <h2 className="text-2xl font-black text-foreground uppercase tracking-tighter italic">Edit Profile</h2>
                     </div>
                     <button onClick={onClose} className="text-muted-foreground hover:text-primary transition-all border-none outline-none ring-0 bg-transparent">
                         <X size={20} />
@@ -75,12 +75,12 @@ export default function ProfileEditModal({ isOpen, onClose }) {
                 {fetching ? (
                     <div className="p-24 flex flex-col items-center justify-center gap-4">
                         <Loader2 className="animate-spin text-primary" size={32} />
-                        <span className="text-[9px] font-black uppercase tracking-widest text-primary/40 italic">Syncing_Node...</span>
+                        <span className="text-[9px] font-black uppercase tracking-widest text-primary/40 italic">Syncing Node...</span>
                     </div>
                 ) : (
                     <form onSubmit={onSubmit} className="p-8 space-y-5 max-h-[75vh] overflow-y-auto">
                         <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-foreground">Identity_Name</Label>
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-foreground">Identity Name</Label>
                             <Input {...register("name", { required: true })} className="rounded-none border-none bg-primary/5 focus-visible:ring-0 h-12 text-xs uppercase font-bold outline-none ring-0 shadow-none" />
                         </div>
 
@@ -96,7 +96,7 @@ export default function ProfileEditModal({ isOpen, onClose }) {
                         </div>
 
                         <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-foreground">Access_Email</Label>
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-foreground">Access Email</Label>
                             <Input {...register("email", { required: true })} type="email" className="rounded-none border-none bg-primary/5 focus-visible:ring-0 h-12 text-xs font-bold outline-none ring-0 shadow-none" />
                         </div>
 
@@ -104,7 +104,7 @@ export default function ProfileEditModal({ isOpen, onClose }) {
                             <span className="text-[9px] font-black uppercase tracking-[0.3em] text-primary/60 mb-4 block">Security_Override (Optional)</span>
                             <div className="space-y-4">
                                 <div className="space-y-2 relative">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest">New_Access_Key</Label>
+                                    <Label className="text-[10px] font-black uppercase tracking-widest">New Access Key</Label>
                                     <div className="relative">
                                         <Input {...register("password")} type={showPass ? "text" : "password"} placeholder="••••••••" className="rounded-none border-none bg-primary/5 focus-visible:ring-0 h-12 text-xs font-bold outline-none ring-0 shadow-none pr-10" />
                                         <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/40 hover:text-primary transition-colors">
@@ -113,7 +113,7 @@ export default function ProfileEditModal({ isOpen, onClose }) {
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest">Confirm_Key</Label>
+                                    <Label className="text-[10px] font-black uppercase tracking-widest">Confirm Key</Label>
                                     <Input {...register("password_confirmation", { validate: value => !watch('password') || value === watch('password') || "Mismatch" })} type={showPass ? "text" : "password"} placeholder="••••••••" className="rounded-none border-none bg-primary/5 focus-visible:ring-0 h-12 text-xs font-bold outline-none ring-0 shadow-none" />
                                     {errors.password_confirmation && <span className="text-[8px] text-destructive font-black uppercase tracking-widest mt-1 block">{errors.password_confirmation.message}</span>}
                                 </div>
@@ -123,7 +123,7 @@ export default function ProfileEditModal({ isOpen, onClose }) {
                         <div className="pt-6 flex gap-4">
                             <button type="button" onClick={onClose} className="flex-1 bg-muted/10 text-[10px] font-black uppercase tracking-widest h-12 border-none outline-none ring-0">Abort</button>
                             <button type="submit" disabled={loading} className="flex-1 bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-widest h-12 shadow-lg shadow-primary/20 border-none outline-none ring-0 flex items-center justify-center disabled:opacity-50">
-                                {loading ? <Loader2 className="animate-spin h-5 w-5" /> : "Sync_Changes"}
+                                {loading ? <Loader2 className="animate-spin h-5 w-5" /> : "Sync Changes"}
                             </button>
                         </div>
                     </form>

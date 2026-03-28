@@ -45,7 +45,7 @@ export function UniversalModal({ isOpen, onClose, title, subtitle, children, max
             onClick={onClose} 
             className="group flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground outline-none"
           >
-            <span className="hidden md:inline">Abort_Process</span>
+            <span className="hidden md:inline">Abort Process</span>
             {/* El cuadro de la X se invierte: Negro en light / Blanco en dark */}
             <div className="p-1 bg-muted group-hover:bg-foreground group-hover:text-background">
                <X size={18} />

@@ -44,7 +44,7 @@ export default function ProductFormModal({ isOpen, onClose, productId = null }) 
       productId ? await updateProduct(productId, formData) : await createProduct(formData);
       onClose();
     } catch (error) {
-      console.error("DATA_TRANSFER_FAILURE:", error.response?.data?.errors);
+      console.error("DATA TRANSFER FAILURE:", error.response?.data?.errors);
     } finally {
       setLoading(false);
     }
@@ -53,21 +53,21 @@ export default function ProductFormModal({ isOpen, onClose, productId = null }) 
   return (
     <UniversalModal 
       isOpen={isOpen} onClose={onClose} 
-      title={productId ? "CORE.UPDATING" : "CORE.MAKING"}
-      subtitle={productId ? `PATCHING_RESOURCES_AT_UID_${productId}` : "INITIALIZING_NEW_ENTRY"}
+      title={productId ? "UPDATING" : "MAKING"}
+      subtitle={productId ? `PATCHING RESOURCES AT UID ${productId}` : "INITIALIZING NEW ENTRY"}
       maxWidth="max-w-6xl"
     >
       <form onSubmit={onSubmit} className="grid grid-cols-1 lg:grid-cols-12 bg-background">
         <div className="lg:col-span-7 p-8 md:p-12 border-r border-border space-y-8">
-          <FormSection number="01" title="DATA_MAPPING_PROCESS" />
+          <FormSection number="01" title="DATA MAPPING PROCESS" />
           <ProductFormFields register={register} setValue={setValue} watch={watch} productId={productId} />
         </div>
 
         <div className="lg:col-span-5 p-8 md:p-12 bg-muted/10 space-y-8">
-          <FormSection number="02" title="VISUAL_SYNCING" />
+          <FormSection number="02" title="VISUAL SYNCING" />
           <ImageUpload register={register} watch={watch} setValue={setValue} />
         </div>
-        <FormFooter onAbort={onClose} loading={loading} isEdit={!!productId} abortText="DISCARD_SEQUENCE" />
+        <FormFooter onAbort={onClose} loading={loading} isEdit={!!productId} abortText="DISCARD SEQUENCE" />
       </form>
     </UniversalModal>
   );

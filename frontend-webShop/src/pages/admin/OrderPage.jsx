@@ -7,7 +7,7 @@ import OrderFormModal from "./modals/OrderFormModal";
 const OrderFilters = ({ filters, setFilters }) => (
   <div className="flex flex-col md:flex-row items-end gap-6 bg-muted/5 border border-border p-8 mb-8">
     <div className="flex flex-col gap-2">
-      <span className="text-[9px] font-black uppercase opacity-40 tracking-widest">Date_Range</span>
+      <span className="text-[9px] font-black uppercase opacity-40 tracking-widest">Date Range</span>
       <div className="flex items-center gap-2">
         <input type="date" value={filters.from} onChange={(e) => setFilters({...filters, from: e.target.value})} className="bg-transparent border border-border px-3 py-2 text-[10px] font-black uppercase outline-none text-primary focus:border-primary/50" />
         <span className="text-[9px] font-black opacity-20">TO</span>
@@ -16,7 +16,7 @@ const OrderFilters = ({ filters, setFilters }) => (
     </div>
 
     <div className="flex flex-col gap-2">
-      <span className="text-[9px] font-black uppercase opacity-40 tracking-widest">Min_Amount_USD</span>
+      <span className="text-[9px] font-black uppercase opacity-40 tracking-widest">Min Amount USD</span>
       <div className="relative">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-primary">$</span>
         <input type="number" value={filters.minAmount} onChange={(e) => setFilters({...filters, minAmount: e.target.value})} placeholder="0.00" className="bg-transparent border border-border pl-7 pr-3 py-2 text-[10px] font-black uppercase outline-none text-foreground w-32 focus:border-primary/50" />
@@ -24,7 +24,7 @@ const OrderFilters = ({ filters, setFilters }) => (
     </div>
 
     <button onClick={() => setFilters({ from: "", to: "", minAmount: "" })} className="h-9 px-6 border border-primary/20 text-primary text-[9px] font-black uppercase hover:bg-primary hover:text-primary-foreground transition-all ml-auto">
-      Reset_Log_Filters
+      Reset Log Filters
     </button>
   </div>
 );
@@ -66,7 +66,7 @@ export default function OrderPage() {
     return processedOrders.map(o => ({
       id: o.id,
       name: o.order_number,
-      subtitle: o.user?.name?.toUpperCase() || "UNKNOWN_USER",
+      subtitle: o.user?.name?.toUpperCase() || "UNKNOWN USER",
       column2: `$${parseFloat(o.total).toFixed(2)}`,
       column3: `${o.items?.length || 0} ITEMS`,
       column4: o.address?.department?.name?.toUpperCase() || "N/A",
@@ -92,9 +92,6 @@ export default function OrderPage() {
           <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground leading-none">
             Sales <span className="text-primary/60">Log</span>
           </h1>
-          <p className="text-[10px] font-bold tracking-[0.3em] text-muted-foreground uppercase opacity-50 mt-2">
-            TRANSACTION_MONITOR // V3.0
-          </p>
         </div>
 
         <OrderFilters filters={filters} setFilters={setFilters} />
@@ -103,7 +100,7 @@ export default function OrderPage() {
       <section className="w-full max-w-400 mx-auto px-12 pb-24">
         <UniversalTable 
           data={mappedData} 
-          columns={["Order_Ref", "Total", "Items", "Region", "Method", "Date", "Status", "Inspect"]} 
+          columns={["Order Ref", "Total", "Items", "Region", "Method", "Date", "Status", "Inspect"]} 
           isAdmin={true} 
           showDelete={false} 
           onEdit={handleEdit} 

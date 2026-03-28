@@ -45,17 +45,17 @@ export default function CategoryFormModal({ isOpen, onClose, categoryId = null }
   return (
     <UniversalModal 
       isOpen={isOpen} onClose={onClose} 
-      title={categoryId ? "CORE.UPDATING" : "CORE.MAKING"}
-      subtitle={categoryId ? `PATCHING_RESOURCES_AT_UID_${categoryId}` : "INITIALIZING_NEW_ENTRY"}
+      title={categoryId ? "UPDATING" : "MAKING"}
+      subtitle={categoryId ? `PATCHING RESOURCES AT UID ${categoryId}` : "INITIALIZING NEW ENTRY"}
       maxWidth="max-w-6xl"
     >
       <form onSubmit={onSubmit} className="grid grid-cols-1 lg:grid-cols-12 bg-background">
         <div className="lg:col-span-7 p-8 md:p-12 border-r border-border space-y-8">
-          <FormSection number="01" title="CORE_DATA_MAPPING" />
+          <FormSection number="01" title="DATA MAPPING" />
           <FormInput label="Display Name" {...register("name", { required: true })} placeholder="INPUT_NAME_HERE" />
           <FormInput label="Protocol Slug" icon={LinkIcon} {...register("slug")} readOnly className="bg-muted/30 font-mono text-primary cursor-not-allowed w-full p-4 border border-border outline-none" />
           <FormSelect label="Parent Dependency" {...register("parent_id")}>
-            <option value="null">-- NULL_PARENT (ROOT) --</option>
+            <option value="null">-- NULL PARENT (ROOT) --</option>
             {categories?.filter(c => !c.parent_id && c.id !== categoryId).map(cat => (
               <option key={cat.id} value={cat.id}>{cat.name}</option>
             ))}
@@ -63,13 +63,13 @@ export default function CategoryFormModal({ isOpen, onClose, categoryId = null }
         </div>
 
         <div className="lg:col-span-5 p-8 md:p-12 bg-muted/10 space-y-8">
-          <FormSection number="02" title="CONTENT_EXTENSIONS" />
+          <FormSection number="02" title="CONTENT EXTENSIONS" />
           <div className="grid gap-2 text-left">
             <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-2"><AlignLeft size={12}/> Description Log</label>
-            <textarea {...register("description")} rows={10} className="bg-transparent border border-border p-4 text-sm focus:border-primary outline-none text-foreground resize-none" placeholder="OPTIONAL_SYSTEM_DESCRIPTION..." />
+            <textarea {...register("description")} rows={10} className="bg-transparent border border-border p-4 text-sm focus:border-primary outline-none text-foreground resize-none" placeholder="OPTIONAL SYSTEM DESCRIPTION..." />
           </div>
         </div>
-        <FormFooter onAbort={onClose} loading={loading} isEdit={!!categoryId} abortText="DISCARD_SEQUENCE" />
+        <FormFooter onAbort={onClose} loading={loading} isEdit={!!categoryId} abortText="DISCARD SEQUENCE" />
       </form>
     </UniversalModal>
   );
