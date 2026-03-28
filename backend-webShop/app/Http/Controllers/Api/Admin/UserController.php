@@ -120,4 +120,45 @@ class UserController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Delete failed'], 500);
         }
     }
+
+    public function profile(Request $request)
+    {
+        return response()->json([
+            'status' => 'success',
+            'data' => $request->user()
+        ], 200);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            $validator = Validator::make($request->all(), [
+                'name'     => 'sometimes|string|max:100',
+                'email'    => 'sometimes|email|unique:users,email,' . $user->id,
+                'password' => 'sometimes|nullable|min:8|confirmed'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['status' => 'fail', 'errors' => $validator->errors()], 422);
+            }
+
+            $data = $request->only(['name', 'email']);
+            
+            if ($request->filled('password')) {
+                $data['password'] = Hash::make($request->password);
+            }
+
+            $user->update($data);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'PROFILE UPDATED',
+                'data' => $user
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Update failed'], 500);
+        }
+    }
 }

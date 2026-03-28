@@ -1,7 +1,7 @@
 import { Edit3, Trash2, Eye, Printer } from "lucide-react";
 import { getInvoicePdfRequest } from "@/api/order";
 
-export function UniversalRow({ item, onDelete, onEdit, isAdmin, showDelete }) {
+export function UniversalRow({ item, onDelete, onEdit, isAdmin, showDelete, editIcon }) {
   const formattedId = item.id ? item.id.toString().padStart(4, '0') : "0000";
   
   const extraColumns = Object.keys(item)
@@ -20,8 +20,7 @@ export function UniversalRow({ item, onDelete, onEdit, isAdmin, showDelete }) {
       const res = await getInvoicePdfRequest(id);
       const file = new Blob([res.data], { type: 'application/pdf' });
       const fileURL = URL.createObjectURL(file);
-      const printWindow = window.open(fileURL);
-
+      window.open(fileURL);
     } catch (error) {
       console.error("PRINT_ERROR:", error);
     }
@@ -79,7 +78,7 @@ export function UniversalRow({ item, onDelete, onEdit, isAdmin, showDelete }) {
                 onClick={() => onEdit(item.id)} 
                 className="p-2.5 bg-secondary/50 border border-border hover:bg-foreground hover:text-background transition-all"
               >
-                <Edit3 size={14} strokeWidth={3} />
+                {editIcon ? editIcon : <Edit3 size={14} strokeWidth={3} />}
               </button>
               {showDelete && (
                 <button 

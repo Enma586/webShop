@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { LayoutDashboard, Package, PlusCircle, BookCheck, ChartNoAxesCombined} from "lucide-react";
+import { LayoutDashboard, Package, PlusCircle, BookCheck, ChartNoAxesCombined, Logs} from "lucide-react";
 import { 
   SidebarGroup, 
   SidebarGroupLabel, 
@@ -14,7 +14,8 @@ export const AdminSection = ({ onNavigate }) => {
     { to: "/admin/products", icon: Package, label: "Inventory" },
     { to: "/admin/categories", icon: PlusCircle, label: "Category" },
     { to: "/admin/orders", icon: BookCheck, label: "Orders" },
-    {to : "/admin/dashboard", icon: ChartNoAxesCombined, label: "Account"}
+    {to : "/admin/dashboard", icon: ChartNoAxesCombined, label: "Account"},
+    {to : "/admin/logs", icon: Logs, label: "Logs"}
     
     
   ];

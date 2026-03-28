@@ -7,7 +7,8 @@ export function UniversalTable({
   onDelete, 
   onEdit, 
   isAdmin = false,
-  showDelete = true 
+  showDelete = true,
+  editIcon = null 
 }) {
   return (
     <div className="w-full bg-background border border-border overflow-hidden transition-colors duration-300">
@@ -38,6 +39,7 @@ export function UniversalTable({
                   onEdit={onEdit} 
                   isAdmin={isAdmin}
                   showDelete={showDelete}
+                  editIcon={editIcon}
                 />
               ))
             ) : (

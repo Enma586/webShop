@@ -22,6 +22,8 @@ import OrderPage from './pages/admin/OrderPage'
 import { InvoiceProvider } from './context/InvoiceContext'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import { ThemeProvider } from './context/ThemeContext'
+import { AdminProvider } from './context/AdminContext'
+import AuditPage from './pages/admin/AuditPage'
 
 function AppRoutes() {
   const { loading } = useAuth(); 
@@ -41,6 +43,7 @@ function AppRoutes() {
         <Route path="/admin/users" element={<UserPage />} />
         <Route path="/admin/orders" element={<OrderPage />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/logs" element={<AuditPage />} />
           {/* Solo necesitamos la ruta del Inventario. 
               El formulario ahora vive DENTRO de ProductPage como un Modal */}
           
@@ -58,6 +61,7 @@ export default function App() {
     <NotificationProvider>
       <ThemeProvider>
       <AuthProvider>
+        <AdminProvider>
         <UserProvider>
         <CategoryProvider>
           <ProductProvider>
@@ -73,6 +77,7 @@ export default function App() {
           </ProductProvider>
         </CategoryProvider>
         </UserProvider>
+        </AdminProvider>
       </AuthProvider>
       </ThemeProvider>
     </NotificationProvider>
