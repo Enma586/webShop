@@ -21,7 +21,7 @@ class OrderController extends Controller
     public function userOrders(Request $request)
     {
         $orders = Order::where('user_id', $request->user()->id)
-            ->with(['items', 'invoice'])
+            ->with(['items', 'invoice', 'address.department', 'address.municipality'])
             ->latest()
             ->get();
 
@@ -60,6 +60,29 @@ class OrderController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Order status updated to ' . $request->status,
+            'data' => $order->load('invoice')
+        ]);
+    }
+
+    public function cancelOrder(Request $request, $id)
+    {
+        $order = Order::where('user_id', $request->user()->id)
+                      ->where('id', $id)
+                      ->first();
+
+        if (!$order) {
+            return response()->json(['status' => 'error', 'message' => 'Order not found or unauthorized'], 404);
+        }
+
+        if ($order->status !== 'pending') {
+            return response()->json(['status' => 'error', 'message' => 'Order cannot be cancelled'], 400);
+        }
+
+        $order->update(['status' => 'cancelled']);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Order cancelled',
             'data' => $order->load('invoice')
         ]);
     }

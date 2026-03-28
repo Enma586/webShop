@@ -6,11 +6,11 @@ import {
     processCheckoutRequest, 
     getAllOrdersRequest, 
     updateOrderStatusRequest,
-    getAdminOrderRequest 
+    getAdminOrderRequest,
+    cancelOrderRequest 
 } from "@/api/order";
 
 const OrderContext = createContext();
-
 export const useOrder = () => {
     const context = useContext(OrderContext);
     if (!context) throw new Error("useOrder must be used within an OrderProvider");
@@ -59,14 +59,17 @@ export function OrderProvider({ children }) {
     const updateStatus = async (id, status) => {
         setLoading(true);
         try {
-            const res = await updateOrderStatusRequest(id, status);
+            const res = (status === 'cancelled') 
+                ? await cancelOrderRequest(id)
+                : await updateOrderStatusRequest(id, status);
+
             const updatedOrder = res.data.data;
 
             setOrders((prev) =>
                 prev.map((o) => (o.id == id ? updatedOrder : o))
             );
 
-            notify(`ORDER UPDATED TO ${status.toUpperCase()}`, 'success');
+            notify(`ORDER ${status.toUpperCase()}`, 'success');
             return res.data;
         } catch (error) {
             const errorMsg = error.response?.data?.message || "ERROR UPDATING STATUS";
@@ -106,3 +109,4 @@ export function OrderProvider({ children }) {
         </OrderContext.Provider>
     );
 }
+

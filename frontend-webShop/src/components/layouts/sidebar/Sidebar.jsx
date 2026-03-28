@@ -4,10 +4,10 @@ import { useCategories } from "@/hooks/useCategories";
 import { useNavbar } from "@/hooks/useNavbar";
 import { Sidebar, SidebarContent, useSidebar } from "@/components/ui/sidebar";
 
-// Importación de los componentes que creamos arriba
 import { SidebarBrand } from "./SidebarBrand";
 import { AdminSection } from "./AdminSection";
 import { CollectionsSection } from "./CollectionsSection";
+import { CustomerSection } from "./CustomerSection";
 
 export function AppSidebar() {
   const { categories } = useCategories();
@@ -17,7 +17,6 @@ export function AppSidebar() {
   
   const isAdmin = user?.role === 'admin';
 
-  // Lógica para organizar padres e hijos
   const organizedCategories = useMemo(() => {
     if (!categories || categories.length === 0) return [];
     
@@ -41,17 +40,24 @@ export function AppSidebar() {
       <SidebarBrand onNavigate={handleNavigation} />
       
       <SidebarContent className="overflow-y-auto overflow-x-hidden custom-scrollbar bg-background pt-6">
-        {/* Sección Admin se muestra solo si es Admin */}
+        
+        {/* PROTOCOLO DE CONTROL: Solo para Administradores */}
         {isAuthenticated && isAdmin && (
           <AdminSection onNavigate={handleNavigation} />
         )}
+
+        {/* TERMINAL DE USUARIO: Para cualquier usuario logueado */}
+        {isAuthenticated && (
+          <CustomerSection onNavigate={handleNavigation} />
+        )}
         
-        {/* Sección de Colecciones */}
+        {/* CATÁLOGO DE ACTIVOS: Visible para todos */}
         <CollectionsSection 
           categories={organizedCategories} 
           locationPath={location.pathname} 
           onNavigate={handleNavigation} 
         />
+        
       </SidebarContent>
     </Sidebar>
   );

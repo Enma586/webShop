@@ -59,31 +59,33 @@ export const AuthProvider = ({ children }) => {
     }, [errors])
 
     const signup = async (userData) => {
-        try {
-            setLoading(true);
-            setErrors([]);
-            const res = await registerRequest(userData);
-            localStorage.setItem('has_session', 'true');
-            notify("REGISTER GRANTED", "success");
-            setUser(res.data.user);
-            setIsAuthenticated(true);
-            setLoading(false);
-            return true;
-        } catch (error) {
-            setLoading(false);
-            const data = error.response?.data;
-            let errorMsg = "CONNECTION ERROR";
-            if (data?.errors) {
-                const firstKey = Object.keys(data.errors)[0];
-                errorMsg = data.errors[firstKey][0];
-            } else if (data?.message) {
-                errorMsg = data.message;
-            }
-            notify(errorMsg.toUpperCase(), "error");
-            setErrors(data?.errors ? Object.values(data.errors).flat() : [errorMsg]);
-            return false;
+    try {
+        setLoading(true);
+        setErrors([]);
+        
+        await registerRequest(userData);
+        
+        notify("IDENTITY REGISTERED SUCCESSFULLY", "success");
+        
+        setLoading(false);
+        return true;
+    } catch (error) {
+        setLoading(false);
+        const data = error.response?.data;
+        let errorMsg = "CONNECTION ERROR";
+        
+        if (data?.errors) {
+            const firstKey = Object.keys(data.errors)[0];
+            errorMsg = data.errors[firstKey][0];
+        } else if (data?.message) {
+            errorMsg = data.message;
         }
-    };
+        
+        notify(errorMsg.toUpperCase(), "error");
+        setErrors(data?.errors ? Object.values(data.errors).flat() : [errorMsg]);
+        return false;
+    }
+};
 
     const signin = async (data) => {
         try {

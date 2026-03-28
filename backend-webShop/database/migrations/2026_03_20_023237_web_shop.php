@@ -85,7 +85,16 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // --- 4. VENTAS Y LOGÍSTICA (Orders) ---
+        // --- 4. CARRITO (Pre-venta) ---
+        Schema::create('cart_items', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->integer('quantity')->default(1);
+            $table->timestamps();
+        });
+
+        // --- 5. VENTAS Y LOGÍSTICA (Orders) ---
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string('order_number')->unique();
@@ -108,7 +117,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // --- 5. FACTURACIÓN (Se genera al completar la Order) ---
+        // --- 6. FACTURACIÓN ---
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
             $table->string('invoice_number')->unique();
@@ -121,7 +130,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // --- 6. AUDITORÍA Y LOGS ---
+        // --- 7. AUDITORÍA Y LOGS ---
         Schema::create('product_histories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
@@ -147,18 +156,20 @@ return new class extends Migration
 
     public function down(): void
     {
+        // El orden aquí es INVERSO al de creación para evitar líos de llaves foráneas
         Schema::dropIfExists('inventory_logs');
         Schema::dropIfExists('product_histories');
         Schema::dropIfExists('invoices');
         Schema::dropIfExists('order_items');
         Schema::dropIfExists('orders');
+        Schema::dropIfExists('cart_items'); // Agregada aquí
         Schema::dropIfExists('addresses');
         Schema::dropIfExists('municipalities');
         Schema::dropIfExists('departments');
         Schema::dropIfExists('products');
         Schema::dropIfExists('categories');
-        Schema::dropIfExists('cache');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('cache');
         Schema::dropIfExists('users');
     }
 };

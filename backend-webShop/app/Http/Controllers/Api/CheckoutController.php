@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\InventoryLog;
 use Illuminate\Http\Request;
@@ -17,63 +16,62 @@ class CheckoutController extends Controller
     public function store(Request $request)
     {
         $user = $request->user();
-        $cartItems = CartItem::with('product')->where('user_id', $user->id)->get();
-
-        if ($cartItems->isEmpty()) {
-            return response()->json(['status' => 'error', 'message' => 'Your cart is empty'], 400);
+    
+        if (!$request->has('items') || count($request->items) === 0) {
+            return response()->json(['status' => 'error', 'message' => 'No assets found in manifest'], 400);
         }
 
-        foreach ($cartItems as $item) {
-            if ($item->product->stock < $item->quantity) {
+        $items = $request->items; 
+
+     
+        foreach ($items as $item) {
+            $product = Product::find($item['product_id']);
+            if (!$product || $product->stock < $item['quantity']) {
+                $name = $product ? $product->name : "Unknown Item";
                 return response()->json([
                     'status' => 'error', 
-                    'message' => "Insufficient stock for: {$item->product->name}"
+                    'message' => "Insufficient stock for: {$name}"
                 ], 422);
             }
         }
 
-        $total = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
-
         try {
-            return DB::transaction(function () use ($user, $request, $cartItems, $total) {
+            return DB::transaction(function () use ($user, $request, $items) {
                 
+        
                 $order = Order::create([
                     'order_number'   => 'ORD-' . strtoupper(Str::random(8)),
                     'user_id'        => $user->id,
-                    'address_id'     => $request->address_id,
-                    'total'          => $total,
+                    'address_id'     => $request->address_id ?? null, 
+                    'total'          => $request->total,
                     'status'         => 'pending',
                     'payment_method' => $request->payment_method ?? 'transfer',
-                    'notes'          => $request->notes
+                    'notes'          => "Phone: {$request->phone} | Addr: {$request->address} | Notes: {$request->notes}"
                 ]);
-
-                foreach ($cartItems as $cartItem) {
-                    $product = $cartItem->product;
+                foreach ($items as $itemData) {
+                    $product = Product::find($itemData['product_id']);
 
                     OrderItem::create([
                         'order_id'     => $order->id,
                         'product_id'   => $product->id,
                         'product_name' => $product->name,
-                        'quantity'     => $cartItem->quantity,
+                        'quantity'     => $itemData['quantity'],
                         'price'        => $product->price 
                     ]);
-
-                    $product->decrement('stock', $cartItem->quantity);
+                    $product->decrement('stock', $itemData['quantity']);
 
                     InventoryLog::create([
                         'product_id'    => $product->id,
                         'user_id'       => $user->id,
                         'movement_type' => 'sale',
-                        'quantity'      => $cartItem->quantity,
+                        'quantity'      => $itemData['quantity'],
                         'reason'        => "Order #{$order->order_number}"
                     ]);
                 }
 
-                CartItem::where('user_id', $user->id)->delete();
-
                 return response()->json([
                     'status'  => 'success',
-                    'message' => 'Purchase completed successfully!',
+                    'message' => 'PURCHASE COMPLETED SUCCESSFULLY!',
                     'order'   => [
                         'id' => $order->id,
                         'number' => $order->order_number
@@ -83,7 +81,7 @@ class CheckoutController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status'  => 'error',
-                'message' => 'Critical failure during checkout',
+                'message' => 'CRITICAL SYSTEM FAILURE',
                 'details' => $e->getMessage()
             ], 500);
         }

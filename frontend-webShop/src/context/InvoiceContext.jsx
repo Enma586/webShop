@@ -1,19 +1,16 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 import { 
     getMyInvoicesRequest, 
     getAllInvoicesRequest, 
     getInvoiceRequest,
 } from '../api/invoice';
-import {getInvoicePdfRequest} from '../api/order'
+import { getInvoicePdfRequest } from '../api/order';
 import { useNotify } from './NotificationContext';
 
 const InvoiceContext = createContext();
-
 export const useInvoice = () => {
     const context = useContext(InvoiceContext);
-    if (!context) {
-        throw new Error("useInvoice must be used within an InvoiceProvider");
-    }
+    if (!context) throw new Error("useInvoice must be used within an InvoiceProvider");
     return context;
 };
 
@@ -22,23 +19,22 @@ export function InvoiceProvider({ children }) {
     const [loading, setLoading] = useState(false);
     const { notify } = useNotify();
 
-    const getInvoices = async () => {
+    const fetchInvoices = useCallback(async (role) => {
+        setLoading(true);
         try {
-            const res = await getAllInvoicesRequest();
+            // Si eres admin vas a la ruta global, si no, a la de customer
+            const res = (role === 'admin') 
+                ? await getAllInvoicesRequest() 
+                : await getMyInvoicesRequest();
+            
             setInvoices(res.data.data);
         } catch (error) {
-            console.error(error);
+            console.error("FETCH_INVOICES_ERROR", error);
+            setInvoices([]);
+        } finally {
+            setLoading(false);
         }
-    };
-
-    const getMyInvoices = async () => {
-        try {
-            const res = await getMyInvoicesRequest();
-            setInvoices(res.data.data);
-        } catch (error) {
-            console.error(error);
-        }
-    };
+    }, []);
 
     const getInvoice = async (id) => {
         try {
@@ -58,10 +54,9 @@ export function InvoiceProvider({ children }) {
             const fileURL = URL.createObjectURL(file);
             
             window.open(fileURL, '_blank');
-            
             notify("INVOICE GENERATED", "success");
         } catch (error) {
-            const errorMsg = error.response?.data?.error || "ERROR GENERATING PDF";
+            const errorMsg = error.response?.data?.message || "ERROR GENERATING PDF";
             notify(errorMsg.toUpperCase(), "error");
         } finally {
             setLoading(false);
@@ -72,8 +67,7 @@ export function InvoiceProvider({ children }) {
         <InvoiceContext.Provider value={{
             invoices,
             loading,
-            getInvoices,
-            getMyInvoices,
+            fetchInvoices,
             getInvoice,
             printInvoice
         }}>
@@ -81,3 +75,4 @@ export function InvoiceProvider({ children }) {
         </InvoiceContext.Provider>
     );
 }
+

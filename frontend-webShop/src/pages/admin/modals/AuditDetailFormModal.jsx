@@ -131,15 +131,6 @@ export default function AuditDetailModal({ isOpen, onClose, logId }) {
             </div>
           </div>
         </div>
-
-        <div className="col-span-12 flex border-t border-border h-20">
-          <button 
-            onClick={onClose} 
-            className="w-full flex items-center justify-center font-black uppercase tracking-[0.3em] text-[11px] bg-foreground text-background hover:bg-primary hover:text-white transition-all duration-300 outline-none"
-          >
-            Exit Inspection Terminal
-          </button>
-        </div>
       </div>
     </UniversalModal>
   );

@@ -1,9 +1,31 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingBag, Star, Sparkles, Shirt, Zap, Fingerprint, Activity, Globe, Shield, ArrowRight } from "lucide-react";
+import { 
+  ShoppingBag, Star, Sparkles, Shirt, Zap, Fingerprint, 
+  Activity, Globe, Shield, ArrowRight, Terminal 
+} from "lucide-react";
+import { getProductsRequest } from "@/api/products";
+import { ProductCard } from "@/components/Shared/Shop/ProductCard";
 
 export default function HomePage() {
     const navigate = useNavigate();
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const res = await getProductsRequest();
+                setProducts(res.data.slice(0, 8));
+            } catch (error) {
+                console.error("CATALOG FETCH ERROR", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProducts();
+    }, []);
 
     const goToCategory = (slug) => {
         navigate(`/category/${slug}`);
@@ -12,7 +34,6 @@ export default function HomePage() {
     return (
         <div className="flex flex-col w-full bg-background min-h-screen overflow-x-hidden">
             
-            {/* HERO SECTION */}
             <section className="relative w-full max-w-6xl mx-auto flex flex-col items-center justify-center text-center py-16 md:py-24 px-6">
                 <div className="z-10 space-y-6">
                     <span className="inline-flex items-center gap-2 py-1 px-3 border border-primary/30 bg-primary/5 text-primary text-[9px] font-black uppercase tracking-[0.4em] animate-pulse">
@@ -30,22 +51,16 @@ export default function HomePage() {
                 </div>
             </section>
 
-            {/* CATEGORY GRID SECTION */}
-            <section className="w-full max-w-7xl mx-auto px-6 pb-24"> {/* Más espacio abajo */}
+            <section className="w-full max-w-7xl mx-auto px-6 pb-24">
                 <div className="grid grid-cols-2 md:grid-cols-6 gap-4 auto-rows-fr">
-       
-                    {/* NEW DROP - THE JOYITA */}
                     <div className="col-span-2 row-span-2 group relative overflow-hidden border border-primary/40 bg-card/30 p-8 flex flex-col justify-end transition-all duration-500 hover:border-primary cursor-pointer shadow-sm hover:shadow-[0_0_30px_rgba(var(--primary),0.1)]"
                          onClick={() => goToCategory('new-drop')}>
                         <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-10 group-hover:rotate-12 transition-all duration-700">
                             <Shirt size={180} strokeWidth={1} className="text-primary" />
                         </div>
-                        
                         <div className="relative z-10">
                             <h3 className="text-3xl font-black italic uppercase tracking-tighter text-foreground mb-1">New Drop</h3>
                             <p className="text-primary font-bold uppercase text-[9px] tracking-[0.5em] mb-6">Selected Units</p>
-                            
-                            {/* EL BOTÓN JOYÍSIMA */}
                             <div className="flex items-center gap-2 group/btn font-black text-[10px] uppercase tracking-[0.3em] text-foreground">
                                 <span className="border-b-2 border-primary pb-1 group-hover:pr-4 transition-all duration-300">Explore Collection</span>
                                 <ArrowRight size={14} className="text-primary transform group-hover:translate-x-2 transition-transform duration-300" />
@@ -53,7 +68,6 @@ export default function HomePage() {
                         </div>
                     </div>
 
-                    {/* ESSENTIALS */}
                     <div className="col-span-2 group relative overflow-hidden border border-border/50 bg-card/30 p-6 flex items-center justify-between transition-all hover:border-primary/50 cursor-pointer"
                          onClick={() => goToCategory('essentials')}>
                         <div className="space-y-1 text-foreground">
@@ -63,21 +77,18 @@ export default function HomePage() {
                         <ShoppingBag className="text-primary/30 group-hover:text-primary transition-colors" size={24} />
                     </div>
 
-                    {/* EXTRAS */}
                     <div className="group relative overflow-hidden border border-border/50 bg-card/30 p-6 flex flex-col justify-center items-center text-center transition-all hover:border-primary/50 cursor-pointer"
                          onClick={() => goToCategory('extras')}>
                         <Star className="text-primary/30 mb-2 group-hover:scale-110 transition-transform" size={24} />
                         <h3 className="text-[10px] font-black uppercase tracking-tighter text-foreground">Extras</h3>
                     </div>
 
-                    {/* TREND */}
                     <div className="group relative overflow-hidden border border-border/50 bg-card/30 p-6 flex flex-col justify-center items-center text-center transition-all hover:border-primary/50 cursor-pointer"
                          onClick={() => goToCategory('trend')}>
                         <Sparkles className="text-primary/30 mb-2 group-hover:scale-110 transition-transform" size={24} />
                         <h3 className="text-[10px] font-black uppercase tracking-tighter text-foreground">Trend</h3>
                     </div>
 
-                    {/* EXPRESS SHIP */}
                     <div className="col-span-4 group relative overflow-hidden border border-primary/20 bg-primary/2 p-6 flex items-center gap-6 transition-all hover:bg-primary/4">
                         <div className="p-3 bg-primary/10 rounded-full">
                             <Zap size={20} className="text-primary animate-pulse" />
@@ -90,7 +101,36 @@ export default function HomePage() {
                 </div>
             </section>
 
-            {/* STATUS FOOTER SECTION - MÁS ESPACIADO Y LIMPIO */}
+            {/* PRODUCT CATALOG SECTION */}
+            <section className="w-full max-w-7xl mx-auto px-6 pb-32">
+                <div className="flex flex-col mb-12 space-y-4">
+                    <div className="flex items-center gap-3 text-primary">
+                        <Terminal size={14} />
+                        <span className="text-[9px] font-black uppercase tracking-[0.5em]">Inventory Sync V1.0</span>
+                    </div>
+                    <div className="flex justify-between items-end">
+                        <h2 className="text-4xl font-black uppercase tracking-tighter italic">Latest Assets</h2>
+                        <Link to="/category/all" className="text-[10px] font-black uppercase tracking-widest border-b border-primary pb-1 hover:pr-4 transition-all">
+                            View All Items
+                        </Link>
+                    </div>
+                </div>
+
+                {loading ? (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                        {[1, 2, 3, 4].map((n) => (
+                            <div key={n} className="aspect-4/5 bg-muted animate-pulse border border-border" />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                        {products.map((product) => (
+                            <ProductCard key={product.id} product={product} />
+                        ))}
+                    </div>
+                )}
+            </section>
+
             <div className="w-full border-t border-border/40 bg-card/10 py-20">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
@@ -114,7 +154,6 @@ export default function HomePage() {
                 </div>
             </div>
 
-            {/* FINAL COPYRIGHT FOOTER */}
             <footer className="w-full py-12 border-t border-border/40 bg-background flex flex-col items-center justify-center gap-6 px-6 text-center">
                 <div className="flex items-center gap-8 opacity-40">
                     <div className="w-16 h-1px bg-foreground"></div>

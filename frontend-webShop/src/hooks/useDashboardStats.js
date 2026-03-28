@@ -7,10 +7,11 @@ export const useDashboardStats = (invoices, dateRange) => {
   const stats = useMemo(() => {
     const filtered = invoices.filter(inv => {
       if (!dateRange.from || !dateRange.to) return true;
+
       const invDate = new Date(inv.created_at);
-      const start = new Date(dateRange.from);
-      const end = new Date(dateRange.to);
-      end.setHours(23, 59, 59, 999);
+      const start = new Date(dateRange.from + "T00:00:00");
+      const end = new Date(dateRange.to + "T23:59:59");
+
       return invDate >= start && invDate <= end;
     });
 
@@ -30,13 +31,15 @@ export const useDashboardStats = (invoices, dateRange) => {
     const productSales = {};
     filtered.forEach(inv => {
       inv.order?.items?.forEach(item => {
-        productSales[item.product_name] = (productSales[item.product_name] || 0) + item.quantity;
+        const name = item.product_name || "Unknown Asset";
+        productSales[name] = (productSales[name] || 0) + item.quantity;
       });
     });
 
     const topAssets = Object.entries(productSales)
       .map(([name, qty]) => ({ name, qty }))
-      .sort((a, b) => b.qty - a.qty).slice(0, 3);
+      .sort((a, b) => b.qty - a.qty)
+      .slice(0, 3);
 
     return { totalRevenue, chartData, topAssets, filtered };
   }, [invoices, dateRange]);

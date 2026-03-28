@@ -14,11 +14,7 @@ class InvoiceController extends Controller
     public function index()
     {
         $invoices = Invoice::with(['user', 'order.items'])->latest()->get();
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $invoices
-        ]);
+        return response()->json(['status' => 'success', 'data' => $invoices]);
     }
 
     public function userInvoices(Request $request)
@@ -28,10 +24,7 @@ class InvoiceController extends Controller
             ->latest()
             ->get();
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $invoices
-        ]);
+        return response()->json(['status' => 'success', 'data' => $invoices]);
     }
 
     public function show($id, Request $request)
@@ -43,18 +36,20 @@ class InvoiceController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
         }
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $invoice
-        ]);
+        return response()->json(['status' => 'success', 'data' => $invoice]);
     }
 
-    public function printInvoice($orderId)
+    public function printInvoice(Request $request, $orderId)
     {
         $invoice = Invoice::where('order_id', $orderId)->first();
 
         if (!$invoice) {
             return response()->json(['error' => 'DATABASE_RECORD_NOT_FOUND'], 404);
+        }
+
+        // SEGURIDAD: Si no es admin, validar que la factura le pertenezca
+        if ($request->user()->role !== 'admin' && $invoice->user_id !== $request->user()->id) {
+            return response()->json(['error' => 'UNAUTHORIZED_ACCESS'], 403);
         }
 
         $fileName = "invoices/invoice_{$invoice->invoice_number}.pdf";

@@ -43,9 +43,11 @@ Route::middleware('auth:api')->group(function () {
     Route::post('checkout', [CheckoutController::class, 'store']);
 
     Route::get('my-orders', [OrderController::class, 'userOrders']);
-    Route::get('my-orders/{id}', [OrderController::class, 'showUserOrder']);
+    Route::get('my-orders/{id}', [OrderController::class, 'show']);
+    Route::patch('my-orders/{id}/cancel', [OrderController::class, 'cancelOrder']);
+    
     Route::get('my-invoices', [InvoiceController::class, 'userInvoices']);
-    Route::get('my-invoices/{id}', [InvoiceController::class, 'show']);
+    Route::get('my-invoices/{orderId}/print', [InvoiceController::class, 'printInvoice']);
 });
 
 Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function () {
@@ -66,5 +68,4 @@ Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function (
     Route::patch('orders/{id}/status', [OrderController::class, 'updateStatus']);
     
     Route::get('invoices', [InvoiceController::class, 'index']);
-    Route::get('invoices/{orderId}/print', [InvoiceController::class, 'printInvoice']);
 });

@@ -14,4 +14,6 @@ export const updateOrderStatusRequest = (id, status) =>
 export const getAdminOrderRequest = (id) => axios.get(`/admin/orders/${id}`)
 
 export const getInvoicePdfRequest = (orderId) => 
-    axios.get(`/admin/invoices/${orderId}/print`, { responseType: 'blob' })
+    axios.get(`/my-invoices/${orderId}/print`, { responseType: 'blob' })
+
+export const cancelOrderRequest = (id) => axios.patch(`/my-orders/${id}/cancel`);

@@ -16,7 +16,7 @@
         }
         .invoice-wrapper { height: 100%; position: relative; }
         
-        /* Uso del Verde Primary: oklch(35% 0.08 154.137) -> #064e3b */
+        /* Verde Primary: #064e3b */
         .header-section { width: 100%; border-bottom: 4px solid #064e3b; padding-bottom: 30px; margin-bottom: 50px; }
         .company-name { font-size: 26px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #064e3b; }
         .invoice-title { font-size: 32px; font-weight: 100; color: #064e3b; text-transform: uppercase; text-align: right; opacity: 0.6; }
@@ -36,7 +36,6 @@
         .totals-table .total-label { color: #6b7280; font-size: 10px; text-transform: uppercase; }
         .totals-table .total-value { font-weight: bold; color: #064e3b; font-size: 13px; }
         
-        /* Fila de Total Principal con el Verde Primary */
         .grand-total-row td { background-color: #064e3b; color: #ffffff; padding: 22px 10px !important; }
         .grand-total-row .total-value { font-size: 20px !important; color: #ffffff; }
 
@@ -71,13 +70,21 @@
                     <span class="section-label">Identidad Cliente</span>
                     <strong style="font-size: 14px; color: #064e3b;">{{ $order->user->name }}</strong><br>
                     <span style="color: #374151;">{{ $order->user->email }}</span><br>
+                    {{-- Usamos el teléfono de la dirección o el del perfil si no hay dirección --}}
                     <span style="color: #374151;">TEL: {{ $order->address->phone ?? 'N/A' }}</span>
                 </td>
                 <td width="35%">
                     <span class="section-label">Nodo de Entrega</span>
                     <span style="color: #374151;">
-                        {{ $order->address->address_details }}<br>
-                        <strong>{{ $order->address->municipality->name }}, {{ $order->address->department->name }}</strong><br>
+                        @if($order->address)
+                            {{-- Caso 1: El usuario seleccionó una dirección guardada --}}
+                            {{ $order->address->address_line }}<br>
+                            <strong>{{ $order->address->municipality->name }}, {{ $order->address->department->name }}</strong><br>
+                        @else
+                            {{-- Caso 2: Manual Override (Dirección escrita a mano en el Checkout) --}}
+                            <strong>ENVÍO MANUAL:</strong><br>
+                            {{ $order->notes ?? 'DIRECCIÓN NO ESPECIFICADA' }}<br>
+                        @endif
                         El Salvador, CA.
                     </span>
                 </td>

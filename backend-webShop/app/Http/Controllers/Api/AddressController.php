@@ -11,20 +11,14 @@ use Exception;
 class AddressController extends Controller
 {
     public function index(Request $request)
-    {
-        $user = $request->user();
+{
+    $user = $request->user();
+    $addresses = Address::with(['department', 'municipality'])
+        ->where('user_id', $user->id)
+        ->get();
 
-        $query = Address::with(['department', 'municipality']);
-
-        if ($user->role !== 'admin') {
-            $query->where('user_id', $user->id);
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $query->get()
-        ], 200);
-    }
+    return response()->json($addresses, 200);
+}
 
     public function store(StoreAddressRequest $request)
     {
