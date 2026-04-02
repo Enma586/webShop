@@ -35,18 +35,26 @@ export function UserProvider({ children }) {
         }
     }
 
-    const updateProfile = async (formData) => {
-        try {
-            const res = await updateProfileRequest(formData);
-            setProfile(res.data.data);
-            notify('PROFILE UPDATED', 'success');
-            return true;
-        } catch (error) {
-            const errorMsg = error.response?.data?.message || "ERROR UPDATING PROFILE";
-            notify(errorMsg.toUpperCase(), "error");
-            return false;
+const updateProfile = async (formData) => {
+    try {
+        const res = await updateProfileRequest(formData);
+        const updatedData = res.data.data;
+        setProfile(updatedData);
+
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        if (storedUser) {
+            localStorage.setItem('user', JSON.stringify({ ...storedUser, ...updatedData }));
         }
+
+        notify('PROFILE UPDATING', 'success');
+        return true;
+    } catch (error) {
+        console.error("UPDATE_PROFILE_ERROR", error);
+        const errorMsg = error.response?.data?.message || "ERROR UPDATING PROFILE";
+        notify(errorMsg.toUpperCase(), "error");
+        return false;
     }
+};
 
     const getUsers = async () => {
         try {
@@ -112,6 +120,7 @@ export function UserProvider({ children }) {
         <UserContext.Provider value={{
             users,
             profile,
+            setProfile,
             getProfile,
             updateProfile,
             getUsers,

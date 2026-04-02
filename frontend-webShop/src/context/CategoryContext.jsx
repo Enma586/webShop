@@ -22,24 +22,22 @@ export function CategoryProvider({ children }) {
     const [categories, setCategories] = useState([]);
     const { notify } = useNotify();
 
-
-
     const getCategories = async () => {
         try {
             const res = await getCategoriesRequest();
-            setCategories(res.data)
+            setCategories(res.data);
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
     }
 
     const getCategory = async (id) => {
         try {
             const res = await getCategoryRequest(id);
-            return res.data
+            return res.data;
         } catch (error) {
-            console.log(error)
-            throw error
+            console.log(error);
+            throw error;
         }
     }
 
@@ -48,19 +46,21 @@ export function CategoryProvider({ children }) {
             const res = await deleteCategoryRequest(id);
             if (res.status === 200 || res.status === 204) {
                 setCategories(prev => prev.filter(cat => cat.id !== id));
+                notify("CATEGORY DELETED", "success");
             }
-            notify("CATEGORY DELETED", "success")
         } catch (error) {
             const errorMsg = error.response?.data?.message || "ERROR DELETING CATEGORY";
-            notify(errorMsg.toUpperCase(), "error")
+            notify(errorMsg.toUpperCase(), "error");
         }
     }
 
     const updateCategory = async (id, categoryData) => {
         try {
-            await updateCategoryRequest(id, categoryData);
-            await getCategories();
-
+            const res = await updateCategoryRequest(id, categoryData);
+            
+            const updatedCategory = res.data;
+            
+            setCategories(prev => prev.map(cat => cat.id === id ? updatedCategory : cat));
             notify("CATEGORY UPDATED", "success");
             return true;
         } catch (error) {
@@ -71,8 +71,11 @@ export function CategoryProvider({ children }) {
 
     const createCategory = async (categoryData) => {
         try {
-            await createCategoryRequest(categoryData);
-            await getCategories();
+            const res = await createCategoryRequest(categoryData);
+            
+            const newCategory = res.data;
+            
+            setCategories(prev => [...prev, newCategory]);
             notify("CATEGORY CREATED", "success");
             return true;
         } catch (error) {

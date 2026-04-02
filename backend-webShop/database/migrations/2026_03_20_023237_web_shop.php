@@ -8,7 +8,6 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // --- 1. IDENTIDAD Y SESIONES ---
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -37,7 +36,6 @@ return new class extends Migration
             $table->integer('last_activity')->index();
         });
 
-        // --- 2. INVENTARIO Y CATÁLOGO ---
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -57,10 +55,10 @@ return new class extends Migration
             $table->decimal('price', 12, 2);
             $table->integer('stock')->default(0);
             $table->string('image')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
 
-        // --- 3. UBICACIONES Y DIRECCIONES ---
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -85,7 +83,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // --- 4. CARRITO (Pre-venta) ---
         Schema::create('cart_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
@@ -94,7 +91,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // --- 5. VENTAS Y LOGÍSTICA (Orders) ---
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string('order_number')->unique();
@@ -117,7 +113,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // --- 6. FACTURACIÓN ---
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
             $table->string('invoice_number')->unique();
@@ -130,10 +125,9 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // --- 7. AUDITORÍA Y LOGS ---
         Schema::create('product_histories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->foreignId('product_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->decimal('old_price', 12, 2)->nullable();
             $table->decimal('new_price', 12, 2)->nullable();
@@ -145,7 +139,7 @@ return new class extends Migration
 
         Schema::create('inventory_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->foreignId('product_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('movement_type'); 
             $table->integer('quantity');
@@ -156,13 +150,12 @@ return new class extends Migration
 
     public function down(): void
     {
-        // El orden aquí es INVERSO al de creación para evitar líos de llaves foráneas
         Schema::dropIfExists('inventory_logs');
         Schema::dropIfExists('product_histories');
         Schema::dropIfExists('invoices');
         Schema::dropIfExists('order_items');
         Schema::dropIfExists('orders');
-        Schema::dropIfExists('cart_items'); // Agregada aquí
+        Schema::dropIfExists('cart_items');
         Schema::dropIfExists('addresses');
         Schema::dropIfExists('municipalities');
         Schema::dropIfExists('departments');

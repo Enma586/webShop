@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
+    use SoftDeletes;
     protected $table = 'products';
+    
 
     protected $fillable = [
         'category_id', 
@@ -29,4 +32,6 @@ class Product extends Model
     {
         return $this->hasMany(ProductHistory::class, 'product_id', 'id');
     }
+   
+
 }

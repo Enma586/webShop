@@ -7,96 +7,141 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Department;
 use App\Models\Municipality;
-use App\Models\Address;
-use App\Models\Order;
-use App\Models\OrderItem;
-use App\Models\Invoice;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $admin = User::create([
-            'name'     => 'Enma Admin',
+        User::create([
+            'name' => 'Enma Admin',
             'username' => 'enma_style',
-            'email'    => 'admin@shop.com',
+            'email' => 'admin@shop.com',
             'password' => Hash::make('admin123'),
-            'role'     => 'admin',
-            'status'   => 'active',
+            'role' => 'admin',
         ]);
 
-        $customer = User::create([
-            'name'     => 'Juan Pérez',
-            'username' => 'juan_perez',
-            'email'    => 'juan@example.com',
-            'password' => Hash::make('password123'),
-            'role'     => 'customer',
-            'status'   => 'active',
-        ]);
-
-        $sonsonate = Department::create(['name' => 'Sonsonate']);
-        $muniSonsonate = Municipality::create(['department_id' => $sonsonate->id, 'name' => 'Sonsonate Centro']);
-
-        $address = Address::create([
-            'user_id' => $customer->id,
-            'department_id' => $sonsonate->id,
-            'municipality_id' => $muniSonsonate->id,
-            'address_line' => 'Colonia La Sensacional, Calle Principal #5',
-            'phone' => '7788-9900',
-            'is_default' => true,
-        ]);
-
-        $catMens = Category::create(['name' => 'Men\'s Wear', 'slug' => 'mens-wear']);
-        
-        $p1 = Product::create(['category_id' => $catMens->id, 'name' => 'Oversized Cotton Tee', 'slug' => 'oversized-cotton-tee', 'price' => 25.00, 'stock' => 50]);
-        $p2 = Product::create(['category_id' => $catMens->id, 'name' => 'Cargo Pants', 'slug' => 'cargo-pants', 'price' => 35.00, 'stock' => 45]);
-
-        $salesData = [
-            ['num' => '001', 'days' => 40, 'total' => 200.00, 'prod' => $p1, 'qty' => 8],
-            ['num' => '002', 'days' => 15, 'total' => 125.00, 'prod' => $p1, 'qty' => 5],
-            ['num' => '003', 'days' => 9,  'total' => 70.00,  'prod' => $p2, 'qty' => 2],
-            ['num' => '004', 'days' => 2,  'total' => 50.00,  'prod' => $p1, 'qty' => 2],
-            ['num' => '005', 'days' => 0,  'total' => 105.00, 'prod' => $p2, 'qty' => 3],
+        $map = [
+            'Ahuachapán' => ['Ahuachapán', 'Jujutla', 'Atiquizaya', 'Concepción de Ataco', 'El Refugio', 'Guaymango', 'Apaneca', 'San Francisco Menéndez', 'San Lorenzo', 'San Pedro Puxtla', 'Turín', 'Tacuba'],
+            'Santa Ana' => ['Santa Ana', 'Candelaria de la Frontera', 'Chalchuapa', 'Coatepeque', 'El Congo', 'El Porvenir', 'Masahuat', 'Metapán', 'San Antonio Pajonal', 'San Sebastián Salitrillo', 'Santa Rosa Guachipilín', 'Santiago de la Frontera', 'Texistepeque'],
+            'Sonsonate' => ['Sonsonate', 'Acajutla', 'Armenia', 'Caluco', 'Cuisnahuat', 'Izalco', 'Juayúa', 'Nahuizalco', 'Nahulingo', 'Salcoatitán', 'San Antonio del Monte', 'San Julián', 'Santa Catarina Masahuat', 'Santa Isabel Ishuatán', 'Santo Domingo de Guzmán', 'Sonzacate'],
+            'Chalatenango' => ['Chalatenango', 'Agua Caliente', 'Arcatao', 'Azacualpa', 'Cancasque', 'Citalá', 'Comalapa', 'Concepción Quezaltepeque', 'Dulce Nombre de María', 'El Carrizal', 'El Paraíso', 'La Laguna', 'La Palma', 'La Reina', 'Las Vueltas', 'Nombre de Jesús', 'Nueva Concepción', 'Nueva Trinidad', 'Ojos de Agua', 'Potonico', 'San Antonio de la Cruz', 'San Antonio Los Ranchos', 'San Fernando', 'San Francisco Lempa', 'San Francisco Morazán', 'San Ignacio', 'San Isidro Labrador', 'San Luis del Carmen', 'San Luis del Carmen', 'San Miguel de Mercedes', 'San Rafael', 'Santa Rita', 'Tejutla'],
+            'La Libertad' => ['Santa Tecla', 'Antiguo Cuscatlán', 'Chiltiupán', 'Ciudad Arce', 'Colón', 'Comasagua', 'Huizúcar', 'Jayaque', 'Jicalapa', 'La Libertad', 'Nuevo Cuscatlán', 'Quezaltepeque', 'San Juan Opico', 'Sacacoyo', 'San José Villanueva', 'San Matías', 'San Pablo Tacachico', 'Talnique', 'Tamanique', 'Teotepeque', 'Tepecoyo', 'Zaragoza'],
+            'San Salvador' => ['San Salvador', 'Aguilares', 'Apopa', 'Ayutuxtepeque', 'Cuscatancingo', 'Delgado', 'Guazapa', 'Ilopango', 'Mejicanos', 'Nejapa', 'Panchimalco', 'Rosario de Mora', 'San Marcos', 'San Martín', 'Santiago Texacuangos', 'Santo Tomás', 'Soyapango', 'Tonacatepeque', 'El Paisnal'],
+            'Cuscatlán' => ['Cojutepeque', 'Candelaria', 'El Carmen', 'El Rosario', 'Monte San Juan', 'Oratorio de Concepción', 'San Bartolomé Perulapía', 'San Cristóbal', 'San José Guayabal', 'San Rafael Cedros', 'San Ramón', 'Santa Cruz Analquito', 'Santa Cruz Michapa', 'Suchitoto', 'Tenancingo', 'San Pedro Perulapán'],
+            'La Paz' => ['Zacatecoluca', 'Cuyultitán', 'El Rosario', 'Jerusalén', 'Mercedes La Ceiba', 'Olocuilta', 'Paraíso de Osorio', 'San Antonio Masahuat', 'San Emigdio', 'San Francisco Chinameca', 'San Juan Nonualco', 'San Juan Talpa', 'San Juan Tepezontes', 'San Luis La Herradura', 'San Luis Talpa', 'San Miguel Tepezontes', 'San Pedro Masahuat', 'San Pedro Nonualco', 'San Rafael Obrajuelo', 'Santa María Ostuma', 'Santiago Nonualco', 'Tapalhuaca'],
+            'Cabañas' => ['Sensuntepeque', 'Cinquera', 'Dolores', 'Guacotecti', 'Ilobasco', 'Jutiapa', 'San Isidro', 'Victoria'],
+            'San Vicente' => ['San Vicente', 'Apastepeque', 'Guadalupe', 'San Cayetano Istepeque', 'San Esteban Catarina', 'San Ildefonso', 'San Lorenzo', 'San Sebastián', 'Santa Clara', 'Santo Domingo', 'Tecoluca', 'Tepetitán', 'Verapaz'],
+            'Usulután' => ['Usulután', 'Alegría', 'Berlín', 'California', 'Concepción Batres', 'El Triunfo', 'Ereguayquín', 'Estanzuelas', 'Jiquilisco', 'Jucuapa', 'Jucuarán', 'Mercedes Umaña', 'Nueva Granada', 'Ozatlán', 'Puerto El Triunfo', 'San Agustín', 'San Buenaventura', 'San Dionisio', 'San Francisco Javier', 'Santa Elena', 'Santa María', 'Santiago de María', 'Tecapán'],
+            'San Miguel' => ['San Miguel', 'Carolina', 'Chapeltique', 'Chinameca', 'Chirilagua', 'Ciudad Barrios', 'Comacarán', 'Gualococti', 'Guatajiagua', 'Lolotique', 'Moncagua', 'Nueva Guadalupe', 'Nuevo Edén de San Juan', 'Quelepa', 'San Antonio del Mosco', 'San Gerardo', 'San Jorge', 'San Luis de la Reina', 'San Rafael Oriente', 'Sesori', 'Uluazapa'],
+            'Morazán' => ['San Francisco Gotera', 'Cacaopera', 'Corinto', 'Chilanga', 'Delicias de Concepción', 'El Divisadero', 'El Rosario', 'Gualococti', 'Guatajiagua', 'Joateca', 'Jocoaitique', 'Jocoro', 'Lolotiquillo', 'Meanguera', 'Osicala', 'Perquín', 'San Carlos', 'San Fernando', 'San Isidro', 'San Simón', 'Sensembra', 'Sociedad', 'Torola', 'Yamabal', 'Yoloaiquín'],
+            'La Unión' => ['La Unión', 'Anamorós', 'Bolívar', 'Concepción de Oriente', 'Conchagua', 'El Carmen', 'El Sauce', 'Intipucá', 'Lislique', 'Meanguera del Golfo', 'Nueva Esparta', 'Pasaquina', 'Polorós', 'San Alejo', 'San José', 'Santa Rosa de Lima', 'Yayantique', 'Yucuaiquín'],
         ];
 
-        foreach ($salesData as $sale) {
-            $date = Carbon::now()->subDays($sale['days']);
+        foreach ($map as $depName => $munis) {
+            $dep = Department::create(['name' => $depName]);
+            foreach ($munis as $muniName) {
+                Municipality::create(['department_id' => $dep->id, 'name' => $muniName]);
+            }
+        }
 
-            $order = Order::create([
-                'order_number' => "ORD-2026-{$sale['num']}",
-                'user_id' => $customer->id,
-                'address_id' => $address->id,
-                'total' => $sale['total'],
-                'status' => 'completed',
-                'payment_method' => 'card',
-                'created_at' => $date,
-                'updated_at' => $date
+        $genderCatalog = [
+            'MEN' => [
+                'T-Shirts' => ['Classic White Tee', 'Oversized Black Shirt', 'Graphic Urban Tee'],
+                'Hoodies' => ['Grey Tech Hoodie', 'Heavyweight Navy Sweatshirt', 'Essential Street Hoodie'],
+                'Pants' => ['Slim Fit Cargo Pants', 'Tech Utility Joggers', 'Cuffed Chino Pants'],
+            ],
+            'WOMEN' => [
+                'Tops' => ['Cropped White Tee', 'Ribbed Tank Top', 'Vintage Graphic Top'],
+                'Hoodies' => ['Pastel Oversized Hoodie', 'Zip Up Sweatshirt', 'Minimalist Fleece Hoodie'],
+                'Bottoms' => ['High Waisted Cargo', 'Wide Leg Pants', 'Sporty Biker Shorts'],
+            ]
+        ];
+
+        foreach ($genderCatalog as $genderName => $subCategories) {
+            $genderParent = Category::create([
+                'name' => $genderName,
+                'slug' => Str::slug($genderName),
             ]);
 
-            OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $sale['prod']->id,
-                'product_name' => $sale['prod']->name,
-                'quantity' => $sale['qty'],
-                'price' => $sale['prod']->price,
-                'created_at' => $date,
-                'updated_at' => $date
+            foreach ($subCategories as $subName => $productNames) {
+                $sub = Category::create([
+                    'name' => $subName,
+                    'slug' => Str::slug($genderName . '-' . $subName),
+                    'parent_id' => $genderParent->id,
+                ]);
+
+                foreach ($productNames as $pName) {
+                    Product::create([
+                        'category_id' => $sub->id,
+                        'name' => $pName,
+                        'slug' => Str::slug($pName) . '-' . Str::random(3),
+                        'description' => "Premium {$pName} specifically crafted for our {$genderName} collection.",
+                        'price' => rand(20, 150),
+                        'stock' => rand(15, 60),
+                        'image' => null
+                    ]);
+                }
+            }
+        }
+
+        $accessoryCatalog = [
+            'Headwear' => ['Premium Black Snapback', 'Minimalist Dad Hat', 'Vintage Beanie Cap', 'Urban Bucket Hat'],
+            'Jewelry' => ['Silver Chain Necklace', 'Industrial Style Bracelet', 'Minimalist Ring Set'],
+            'Lifestyle' => ['Tactical Backpack', 'Utility Crossbody Bag', 'Leather Wallet Node', 'Tech Keychain'],
+        ];
+
+        $accParent = Category::create([
+            'name' => 'ACCESSORIES',
+            'slug' => 'accessories',
+        ]);
+
+        foreach ($accessoryCatalog as $subName => $productNames) {
+            $sub = Category::create([
+                'name' => $subName,
+                'slug' => Str::slug('acc-' . $subName),
+                'parent_id' => $accParent->id,
             ]);
 
-            Invoice::create([
-                'invoice_number' => "INV-2026-{$sale['num']}",
-                'order_id' => $order->id,
-                'user_id' => $customer->id,
-                'subtotal' => $sale['total'], 
-                'tax' => 0.00, 
-                'total' => $sale['total'],
-                'status' => 'paid',
-                'created_at' => $date,
-                'updated_at' => $date
+            foreach ($productNames as $pName) {
+                Product::create([
+                    'category_id' => $sub->id,
+                    'name' => $pName,
+                    'slug' => Str::slug($pName) . '-' . Str::random(3),
+                    'description' => "Essential {$pName} to complete your identity setup.",
+                    'price' => rand(15, 85),
+                    'stock' => rand(20, 100),
+                    'image' => null
+                ]);
+            }
+        }
+
+        $unisexDrops = [
+            'new-drop' => ['Reflective Windbreaker', 'Shadow Cargo Pants', 'Limited Identity Tee'],
+            'essentials' => ['Cotton Crew Socks', 'Basic Beanie Hat', 'Everyday Crossbody Bag'],
+            'extras' => ['Tactical Keychain', 'Industrial Buckle Belt', 'Tech Phone Case'],
+            'trend' => ['Cyberpunk Utility Vest', 'Neon Patch Sweatshirt', 'Modular Sling Bag']
+        ];
+
+        foreach ($unisexDrops as $slug => $items) {
+            $cat = Category::create([
+                'name' => Str::title(str_replace('-', ' ', $slug)),
+                'slug' => $slug,
             ]);
+
+            foreach ($items as $itemName) {
+                Product::create([
+                    'category_id' => $cat->id,
+                    'name' => $itemName,
+                    'slug' => Str::slug($itemName),
+                    'description' => "Exclusive asset from the {$slug} unisex drop.",
+                    'price' => rand(45, 190),
+                    'stock' => rand(5, 25),
+                    'image' => null
+                ]);
+            }
         }
     }
 }

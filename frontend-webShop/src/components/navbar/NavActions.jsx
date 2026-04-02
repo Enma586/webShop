@@ -19,9 +19,7 @@ export const NavActions = () => {
 
     return (
         <div className="flex items-center gap-1 md:gap-2">
-            <Button variant="ghost" size="icon" className="...">
-                <Search className="h-5 w-5" />
-            </Button>
+
             
             <Button 
                 onClick={handleOpenCart}

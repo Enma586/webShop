@@ -9,7 +9,6 @@ class ProductHistory extends Model
 {
     protected $table = 'product_histories';
 
-    // Si tu tabla NO tiene la columna updated_at, deja esto en false:
     public $timestamps = false; 
 
     protected $fillable = [
@@ -23,14 +22,14 @@ class ProductHistory extends Model
     ];
 
     protected $casts = [
-        'old_data' => 'array', // Esto convierte el JSON a Array y viceversa
+        'old_data' => 'array',
         'old_price' => 'decimal:2',
         'new_price' => 'decimal:2',
     ];
 
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class)->withTrashed();
     }
 
     public function user(): BelongsTo

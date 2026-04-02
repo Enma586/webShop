@@ -12,10 +12,7 @@ class CategoryController extends Controller
     public function index()
     {
         try {
-            // Quitamos el whereNull para que salgan TODAS (Padres e Hijas)
             $categories = Category::with('parent')->get();
-            
-
             return response()->json($categories, 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -28,21 +25,14 @@ class CategoryController extends Controller
     public function store(StoreCategoryRequest $request)
     {
         $category = Category::create($request->validated());
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Category created successfully',
-            'data' => $category
-        ], 201);
+        // Retornamos el objeto puro para que React lo reciba sin capas extra
+        return response()->json($category, 201);
     }
 
     public function show($id)
     {
         $category = Category::with('children', 'parent')->find($id);
-
-        if (!$category) {
-            return response()->json(['message' => 'Category not found'], 404);
-        }
+        if (!$category) return response()->json(['message' => 'Category not found'], 404);
         return response()->json($category, 200);
     }
 
@@ -53,10 +43,7 @@ class CategoryController extends Controller
 
         $category->update($request->only(['name', 'parent_id', 'description', 'slug']));
 
-        return response()->json([
-            'message' => 'Category updated successfully',
-            'data' => $category
-        ]);
+        return response()->json($category, 200);
     }
 
     public function destroy($id)

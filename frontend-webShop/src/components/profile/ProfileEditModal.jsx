@@ -8,7 +8,7 @@ import { Loader2, X, ShieldCheck, Eye, EyeOff, Cpu } from "lucide-react";
 
 export default function ProfileEditModal({ isOpen, onClose }) {
     const { profile, getProfile, updateProfile } = useUser();
-    const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm();
+    const { register, handleSubmit, watch, reset, formState: { errors } } = useForm();
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(false);
     const [showPass, setShowPass] = useState(false);
@@ -24,10 +24,12 @@ export default function ProfileEditModal({ isOpen, onClose }) {
                     const res = await getProfile();
                     const userData = res?.data || res;
                     if (userData && isMounted) {
-                        setValue("name", userData.name || "");
-                        setValue("email", userData.email || "");
-                        setValue("username", userData.username || "");
-                        setValue("role", userData.role || "");
+                        reset({
+                            name: userData.name || "",
+                            email: userData.email || "",
+                            username: userData.username || "",
+                            role: userData.role || ""
+                        });
                     }
                 } catch (err) {
                     console.error(err);
@@ -36,17 +38,20 @@ export default function ProfileEditModal({ isOpen, onClose }) {
                 }
             };
             loadData();
-        } else {
-            reset();
         }
         return () => { isMounted = false; };
-    }, [isOpen]);
+    }, [isOpen]); 
 
     const onSubmit = handleSubmit(async (formData) => {
         setLoading(true);
         const success = await updateProfile(formData);
-        setLoading(false);
-        if (success) onClose();
+        
+        if (success) {
+            onClose();
+            window.location.reload();
+        } else {
+            setLoading(false);
+        }
     });
 
     if (!isOpen) return null;
@@ -67,7 +72,7 @@ export default function ProfileEditModal({ isOpen, onClose }) {
                         </div>
                         <h2 className="text-2xl font-black text-foreground uppercase tracking-tighter italic">Edit Profile</h2>
                     </div>
-                    <button onClick={onClose} className="text-muted-foreground hover:text-primary transition-all border-none outline-none ring-0 bg-transparent">
+                    <button onClick={onClose} className="text-muted-foreground hover:text-primary transition-all border-none outline-none ring-0 bg-transparent cursor-pointer">
                         <X size={20} />
                     </button>
                 </div>
@@ -78,7 +83,7 @@ export default function ProfileEditModal({ isOpen, onClose }) {
                         <span className="text-[9px] font-black uppercase tracking-widest text-primary/40 italic">Syncing Node...</span>
                     </div>
                 ) : (
-                    <form onSubmit={onSubmit} className="p-8 space-y-5 max-h-[75vh] overflow-y-auto">
+                    <form onSubmit={onSubmit} className="p-8 space-y-5 max-h-[75vh] overflow-y-auto custom-scrollbar">
                         <div className="space-y-2">
                             <Label className="text-[10px] font-black uppercase tracking-widest text-foreground">Identity Name</Label>
                             <Input {...register("name", { required: true })} className="rounded-none border-none bg-primary/5 focus-visible:ring-0 h-12 text-xs uppercase font-bold outline-none ring-0 shadow-none" />
@@ -107,7 +112,7 @@ export default function ProfileEditModal({ isOpen, onClose }) {
                                     <Label className="text-[10px] font-black uppercase tracking-widest">New Access Key</Label>
                                     <div className="relative">
                                         <Input {...register("password")} type={showPass ? "text" : "password"} placeholder="••••••••" className="rounded-none border-none bg-primary/5 focus-visible:ring-0 h-12 text-xs font-bold outline-none ring-0 shadow-none pr-10" />
-                                        <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/40 hover:text-primary transition-colors">
+                                        <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/40 hover:text-primary transition-colors cursor-pointer">
                                             {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                                         </button>
                                     </div>
@@ -121,8 +126,8 @@ export default function ProfileEditModal({ isOpen, onClose }) {
                         </div>
 
                         <div className="pt-6 flex gap-4">
-                            <button type="button" onClick={onClose} className="flex-1 bg-muted/10 text-[10px] font-black uppercase tracking-widest h-12 border-none outline-none ring-0">Abort</button>
-                            <button type="submit" disabled={loading} className="flex-1 bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-widest h-12 shadow-lg shadow-primary/20 border-none outline-none ring-0 flex items-center justify-center disabled:opacity-50">
+                            <button type="button" onClick={onClose} className="flex-1 bg-muted/10 text-[10px] font-black uppercase tracking-widest h-12 border-none outline-none ring-0 cursor-pointer">Abort</button>
+                            <button type="submit" disabled={loading} className="flex-1 bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-widest h-12 shadow-lg shadow-primary/20 border-none outline-none ring-0 flex items-center justify-center disabled:opacity-50 cursor-pointer">
                                 {loading ? <Loader2 className="animate-spin h-5 w-5" /> : "Sync Changes"}
                             </button>
                         </div>
