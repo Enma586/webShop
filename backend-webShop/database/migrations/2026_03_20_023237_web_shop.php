@@ -72,11 +72,20 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        // NUEVA TABLA: DISTRITOS
+        Schema::create('districts', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('municipality_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->timestamps();
+        });
+
         Schema::create('addresses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('department_id')->constrained()->onDelete('cascade');
             $table->foreignId('municipality_id')->constrained()->onDelete('cascade');
+            $table->foreignId('district_id')->constrained()->onDelete('cascade'); // AÑADIDO
             $table->string('address_line');
             $table->string('phone');
             $table->boolean('is_default')->default(false);
@@ -157,6 +166,7 @@ return new class extends Migration
         Schema::dropIfExists('orders');
         Schema::dropIfExists('cart_items');
         Schema::dropIfExists('addresses');
+        Schema::dropIfExists('districts');
         Schema::dropIfExists('municipalities');
         Schema::dropIfExists('departments');
         Schema::dropIfExists('products');

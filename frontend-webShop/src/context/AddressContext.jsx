@@ -4,7 +4,8 @@ import {
     createAddressRequest, 
     deleteAddressRequest,
     getDepartmentsRequest,
-    getMunicipalitiesRequest 
+    getMunicipalitiesRequest,
+    getDistrictsRequest
 } from "../api/addresses";
 import { useNotify } from "./NotificationContext";
 
@@ -26,7 +27,6 @@ export function AddressProvider({ children }) {
         setLoading(true);
         try {
             const res = await getAddressesRequest();
-            // Accedemos a res.data.data porque tu controlador retorna { status, data: [] }
             const incomingData = res.data?.data || res.data;
             setAddresses(Array.isArray(incomingData) ? incomingData : []);
         } catch (error) {
@@ -39,7 +39,6 @@ export function AddressProvider({ children }) {
     const getDepartments = useCallback(async () => {
         try {
             const res = await getDepartmentsRequest();
-            // Si el endpoint de departamentos también está envuelto en 'data'
             const incomingDepts = res.data?.data || res.data;
             setDepartments(Array.isArray(incomingDepts) ? incomingDepts : []);
         } catch (error) {
@@ -58,11 +57,22 @@ export function AddressProvider({ children }) {
         }
     };
 
+    // NUEVA FUNCIÓN PARA DISTRITOS
+    const getDistricts = async (muniId) => {
+        try {
+            const res = await getDistrictsRequest(muniId);
+            const incomingDistricts = res.data?.data || res.data;
+            return Array.isArray(incomingDistricts) ? incomingDistricts : [];
+        } catch (error) {
+            console.error(error);
+            return [];
+        }
+    };
+
     const createAddress = async (address) => {
         setLoading(true);
         try {
             const res = await createAddressRequest(address);
-            // Tu store retorna el nuevo objeto dentro de res.data.data
             const newAddress = res.data?.data || res.data;
             
             setAddresses(prev => {
@@ -101,6 +111,7 @@ export function AddressProvider({ children }) {
             getAddresses,
             getDepartments,
             getMunicipalities,
+            getDistricts,
             createAddress,
             deleteAddress
         }}>

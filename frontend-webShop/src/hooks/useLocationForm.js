@@ -8,7 +8,13 @@ export const useLocationForm = (initialState) => {
     const [formData, setFormData] = useState(initialState);
 
     const handleDeptChange = async (deptId) => {
-        setFormData(prev => ({ ...prev, department_id: deptId, municipality_id: "" }));
+        setFormData(prev => ({ 
+            ...prev, 
+            department_id: deptId, 
+            municipality_id: "", 
+            district_id: "" 
+        }));
+        
         if (deptId) {
             setFetchingMunis(true);
             const data = await getMunicipalities(deptId);
@@ -16,13 +22,22 @@ export const useLocationForm = (initialState) => {
             setFetchingMunis(false);
             return data;
         }
+        
         setMunicipalities([]);
         return [];
     };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        if (name === 'municipality_id') {
+            setFormData(prev => ({ 
+                ...prev, 
+                [name]: value,
+                district_id: "" 
+            }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     return {

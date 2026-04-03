@@ -11,6 +11,7 @@ class Address extends Model
         'user_id',
         'department_id',
         'municipality_id',
+        'district_id', // <--- Nuevo campo agregado
         'address_line',
         'postal_code',
         'country',
@@ -31,5 +32,10 @@ class Address extends Model
     public function municipality(): BelongsTo
     {
         return $this->belongsTo(Municipality::class);
+    }
+
+    public function district(): BelongsTo
+    {
+        return $this->belongsTo(District::class);
     }
 }

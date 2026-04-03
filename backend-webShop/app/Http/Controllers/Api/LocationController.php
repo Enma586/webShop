@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\Municipality;
+use App\Models\District; 
 use Illuminate\Http\Request;
 
 class LocationController extends Controller
@@ -22,5 +23,16 @@ class LocationController extends Controller
             ->get();
             
         return response()->json($municipalities);
+    }
+
+
+    
+    public function getDistricts($municipalityId)
+    {
+        $districts = District::where('municipality_id', $municipalityId)
+            ->orderBy('name', 'asc')
+            ->get();
+            
+        return response()->json($districts);
     }
 }

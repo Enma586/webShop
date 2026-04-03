@@ -22,8 +22,13 @@ Route::prefix('auth')->group(function () {
 Route::get('categories', [CategoryController::class, 'index']);
 Route::get('products', [ProductController::class, 'index']);
 Route::get('products/{id}', [ProductController::class, 'show']);
-Route::get('locations/departments', [LocationController::class, 'getDepartments']);
-Route::get('locations/departments/{id}/municipalities', [LocationController::class, 'getMunicipalities']);
+
+
+Route::prefix('locations')->group(function () {
+    Route::get('departments', [LocationController::class, 'getDepartments']);
+    Route::get('departments/{id}/municipalities', [LocationController::class, 'getMunicipalities']);
+    Route::get('municipalities/{id}/districts', [LocationController::class, 'getDistricts']);
+});
 
 Route::middleware('auth:api')->group(function () {
     
