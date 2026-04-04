@@ -14,6 +14,7 @@ import AuditPage from './pages/admin/AuditPage';
 
 import CheckoutPage from './pages/shop/CheckoutPage';
 import CategoryPageCustomer from './pages/shop/CategoryPageCustomer';
+import ProductDetailPage from './pages/shop/ProductDetailPage';
 import AddressPage from './pages/customer/AddressPage';
 import MyOrdersPage from './pages/customer/OrdersPage';
 
@@ -35,6 +36,7 @@ function AppRoutes() {
           <Route path="/" element={<HomePage />} />
           <Route path="/home" element={<HomePage />} />
           <Route path="/category/:slug" element={<CategoryPageCustomer />} />
+          <Route path="/product/:id" element={<ProductDetailPage />} />
 
           <Route element={<ProtectedRoute allowedRoles={['admin', 'customer']} />}>
             <Route path="/checkout" element={<CheckoutPage />} />

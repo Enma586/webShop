@@ -20,6 +20,11 @@ e.stopPropagation();
     openCart();
   };
 
+  const handlePreview = (e) => {
+    e.stopPropagation();
+    navigate(`/product/${product.id}`);
+  };
+
   return (
     <div className="group relative bg-background border border-border overflow-hidden hover:border-primary transition-colors duration-300">
       <div className="absolute top-4 left-4 z-10">
@@ -39,12 +44,17 @@ e.stopPropagation();
         
         <div className="absolute inset-0 bg-background/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4 backdrop-blur-[2px]">
           <button 
+            onClick={handlePreview}
+            className="p-4 bg-foreground text-background hover:bg-primary hover:text-white transition-none"
+          >
+            <Eye size={20} />
+          </button>
+          <button 
             disabled={product.stock <= 0}
             onClick={handleQuickAdd}
-            className="p-4 bg-foreground text-background hover:bg-primary hover:text-white disabled:opacity-50 transition-none flex items-center gap-2"
+            className="p-4 bg-foreground text-background hover:bg-primary hover:text-white disabled:opacity-50 transition-none"
           >
             <ShoppingCart size={20} />
-            <Plus size={12} strokeWidth={4} />
           </button>
         </div>
       </div>

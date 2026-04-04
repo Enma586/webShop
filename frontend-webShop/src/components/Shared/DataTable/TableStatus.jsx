@@ -1,3 +1,7 @@
 export function TableStatus() {
-  return <div className="h-1px w-full bg-border/10 overflow-hidden"><div className="h-full bg-primary animate-progress w-[30%]" /></div>;
+  return (
+    <div className="h-px w-full bg-border/10 overflow-hidden">
+      <div className="h-full bg-gradient-to-r from-transparent via-primary to-transparent animate-progress w-[40%]" />
+    </div>
+  );
 }
