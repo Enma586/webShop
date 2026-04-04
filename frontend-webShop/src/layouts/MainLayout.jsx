@@ -6,6 +6,7 @@ import { NavActions } from "@/components/navbar/NavActions";
 import { UserMenu } from "@/components/navbar/UserMenu";
 import { ThemeToggle } from "@/components/Shared/DarkMode/ThemeToggle"; // Importar el toggle
 import { Button } from "@/components/ui/button";
+import { SearchBar } from "@/components/navbar/SearchBar";
 import { useEffect } from "react";
 
 export default function MainLayout() {
@@ -30,6 +31,7 @@ export default function MainLayout() {
             PIBES SHOP
           </Link>
           <div className="flex items-center gap-6">
+            <SearchBar className="max-w-sm w-full" />
             <ThemeToggle />
             <Button onClick={() => navigate("/login")} variant="ghost" className="text-[12px] font-black uppercase tracking-[0.3em] text-muted-foreground h-12">
               Login
@@ -64,6 +66,8 @@ export default function MainLayout() {
                 )}
               </div>
             </div>
+
+            <SearchBar className="max-w-md w-full mx-8" />
 
             <div className="flex items-center gap-4">
               <NavActions count={cartCount} />
