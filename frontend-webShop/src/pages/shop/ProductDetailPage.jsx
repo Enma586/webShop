@@ -126,10 +126,6 @@ export default function ProductDetailPage() {
 
                                 <div className="grid grid-cols-2 gap-4 text-[10px] font-black uppercase tracking-widest">
                                     <div className="flex items-center gap-3 text-muted-foreground">
-                                        <Hash size={12} />
-                                        <span>ID: {product.id}</span>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-muted-foreground">
                                         <Package size={12} />
                                         <span>Stock: {product.stock}</span>
                                     </div>
@@ -153,7 +149,7 @@ export default function ProductDetailPage() {
                                     >
                                         <Minus size={14} />
                                     </button>
-                                    <span className="px-6 py-3 font-mono font-bold text-sm border-x border-border min-w-[3rem] text-center">
+                                    <span className="px-6 py-3 font-mono font-bold text-sm border-x border-border min-w-12 text-center">
                                         {quantity}
                                     </span>
                                     <button

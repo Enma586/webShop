@@ -76,6 +76,7 @@ export default function AuditPage() {
           subtitle="SECURITY_AUDIT_TRAIL_V3.0"
           isAdmin={false}
           onActionClick={getProductLogs}
+          onRefresh={getProductLogs}
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           actionLabel="REFRESH_SYNC"

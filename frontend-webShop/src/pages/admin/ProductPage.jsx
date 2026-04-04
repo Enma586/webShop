@@ -58,6 +58,7 @@ export default function ProductPage() {
           subtitle="ASSET_LOGS_V3.0" 
           isAdmin={true} 
           onActionClick={() => setIsModalOpen(true)} 
+          onRefresh={getProducts}
           searchTerm={searchTerm} 
           setSearchTerm={setSearchTerm} 
           onFilterChange={setFilterType} 

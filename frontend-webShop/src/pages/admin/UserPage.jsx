@@ -54,7 +54,7 @@ export default function UserPage() {
   return (
     <div className="flex flex-col w-full bg-background min-h-screen">
       <section className="w-full max-w-1600px mx-auto pt-10 px-12">
-        <UniversalHeader title={viewMode === "BANNED" ? "Blacklist" : "USER"} isAdmin={viewMode === "ADMIN"} onActionClick={() => setIsModalOpen(true)} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        <UniversalHeader title={viewMode === "BANNED" ? "Blacklist" : "USER"} isAdmin={viewMode === "ADMIN"} onActionClick={() => setIsModalOpen(true)} onRefresh={getUsers} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         <div className="w-full flex bg-muted/20 border-b border-border h-12">
           {[{ id: "ADMIN", icon: ShieldCheck, label: "Personnel" }, { id: "PUBLIC", icon: Eye, label: "Customers" }, { id: "BANNED", icon: Ban, label: "Banned" }].map(mode => (
             <button key={mode.id} onClick={() => setViewMode(mode.id)} className={`flex items-center gap-3 px-8 text-[10px] font-black uppercase tracking-widest border-r border-border ${viewMode === mode.id ? "bg-background border-b-2 border-b-primary" : "text-muted-foreground hover:bg-muted/30"}`}>

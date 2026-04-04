@@ -1,3 +1,4 @@
+import { RefreshCcw } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { useOrder } from "@/context/OrderContext";
 import { UniversalTable } from "@/components/Shared/DataTable/UniversalTable";
@@ -87,11 +88,21 @@ export default function OrderPage() {
   return (
     <div className="flex flex-col w-full bg-background min-h-screen">
       <header className="w-full max-w-400 mx-auto pt-16 px-12 mb-12">
-        <div className="relative pl-6 mb-12">
-          <div className="absolute left-0 top-1 bottom-1 w-1 bg-primary" />
-          <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground leading-none">
-            Sales <span className="text-primary/60">Log</span>
-          </h1>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
+          <div className="relative pl-6">
+            <div className="absolute left-0 top-1 bottom-1 w-1 bg-primary" />
+            <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground leading-none">
+              Sales <span className="text-primary/60">Log</span>
+            </h1>
+          </div>
+          <button
+            onClick={getOrders}
+            className="h-10 px-5 border border-border bg-muted/5 text-foreground hover:bg-foreground hover:text-background font-black uppercase tracking-[0.2em] transition-all active:scale-95 flex items-center gap-2"
+            title="Refresh data"
+          >
+            <RefreshCcw size={14} strokeWidth={3} />
+            Refresh
+          </button>
         </div>
 
         <OrderFilters filters={filters} setFilters={setFilters} />

@@ -1,4 +1,4 @@
-import { Plus, Search, Filter, SlidersHorizontal, X } from "lucide-react";
+import { Plus, Search, Filter, SlidersHorizontal, X, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,6 +12,7 @@ export function UniversalHeader({
   title,
   subtitle,
   onActionClick,
+  onRefresh,
   isAdmin = false,
   searchTerm,
   setSearchTerm,
@@ -38,13 +39,24 @@ export function UniversalHeader({
         </div>
 
         {isAdmin && (
-          <Button
-            onClick={onActionClick}
-            className="h-12 bg-primary text-primary-foreground font-black uppercase tracking-[0.2em] px-8 rounded-none hover:opacity-90 transition-all border-none"
-          >
-            <Plus className="w-4 h-4 mr-2 stroke-[3px]" />
-            CREATE
-          </Button>
+          <div className="flex items-center gap-3">
+            {onRefresh && (
+              <button
+                onClick={onRefresh}
+                className="h-12 px-5 border border-border bg-muted/5 text-foreground hover:bg-foreground hover:text-background font-black uppercase tracking-[0.2em] transition-all active:scale-95"
+                title="Refresh data"
+              >
+                <RotateCw className="w-4 h-4 stroke-[3px]" />
+              </button>
+            )}
+            <Button
+              onClick={onActionClick}
+              className="h-12 bg-primary text-primary-foreground font-black uppercase tracking-[0.2em] px-8 rounded-none hover:opacity-90 transition-all border-none"
+            >
+              <Plus className="w-4 h-4 mr-2 stroke-[3px]" />
+              CREATE
+            </Button>
+          </div>
         )}
       </div>
 

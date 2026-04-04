@@ -59,7 +59,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="flex flex-col w-full bg-background min-h-screen animate-in fade-in duration-700">
+    <div className="flex flex-col w-full bg-background min-h-screen">
       
       {/* HEADER SECTION */}
       <section className="w-full max-w-400 mx-auto pt-16 px-12">
