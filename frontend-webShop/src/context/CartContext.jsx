@@ -127,7 +127,7 @@ export function CartProvider({ children }) {
         }
     };
 
-    const cartCount = useMemo(() => cart.reduce((acc, item) => acc + item.quantity, 0), [cart]);
+    const cartCount = useMemo(() => cart.length, [cart]);
     const cartTotal = useMemo(() => cart.reduce((acc, item) => acc + (item.price * item.quantity), 0), [cart]);
 
     const openCart = () => setIsCartOpen(true);
