@@ -42,7 +42,9 @@ class ProductObserver
             'user_id'       => $adminId,
             'movement_type' => 'in',
             'quantity'      => $product->stock,
-            'reason'        => 'INITIAL_STOCK_INJECTION'
+            'reason'        => 'INITIAL_STOCK_INJECTION',
+            'old_stock'     => 0,
+            'new_stock'     => $product->stock,
         ]);
     }
 
@@ -83,7 +85,9 @@ class ProductObserver
                     'user_id'       => $adminId,
                     'movement_type' => $diff > 0 ? 'in' : 'out',
                     'quantity'      => abs($diff),
-                    'reason'        => 'MANUAL_DELTA_ADJUSTMENT'
+                    'reason'        => 'MANUAL_DELTA_ADJUSTMENT',
+                    'old_stock'     => $oldStock,
+                    'new_stock'     => $newStock,
                 ]);
             }
         }
@@ -114,7 +118,9 @@ class ProductObserver
             'user_id'       => $adminId,
             'movement_type' => 'out',
             'quantity'      => $product->stock,
-            'reason'        => 'ASSET_DECOMMISSIONED'
+            'reason'        => 'ASSET_DECOMMISSIONED',
+            'old_stock'     => $product->stock,
+            'new_stock'     => 0,
         ]);
     }
 }

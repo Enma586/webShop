@@ -7,6 +7,12 @@ import UserFormModal from "./modals/UserFormModal";
 import ConfirmDeleteModal from '@/components/Shared/Modals/ConfirmDeleteModal';
 import { ShieldCheck, Eye, Ban } from "lucide-react";
 
+const USER_SORT_OPTIONS = [
+  { value: "name_asc", key: "NAME_AZ", label: "NAME_A_TO_Z" },
+  { value: "name_desc", key: "NAME_ZA", label: "NAME_Z_TO_A" },
+  { value: "role", key: "ROLE", label: "BY_ROLE" },
+];
+
 export default function UserPage() {
   const { users, getUsers, deleteUser } = useUser();
   const [viewMode, setViewMode] = useState("ADMIN");
@@ -15,7 +21,7 @@ export default function UserPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortConfig, setSortConfig] = useState(null);
+  const [activeSort, setActiveSort] = useState(null);
 
   useEffect(() => { getUsers(); }, []);
 
@@ -28,8 +34,13 @@ export default function UserPage() {
         u.email?.toLowerCase().includes(term)
       );
     }
+
+    if (activeSort?.key === "NAME_AZ") result.sort((a, b) => (a.username || a.name || "").localeCompare(b.username || b.name || ""));
+    if (activeSort?.key === "NAME_ZA") result.sort((a, b) => (b.username || b.name || "").localeCompare(a.username || a.name || ""));
+    if (activeSort?.key === "ROLE") result.sort((a, b) => (a.role || "").localeCompare(b.role || ""));
+
     return result;
-  }, [users, searchTerm]);
+  }, [users, searchTerm, activeSort]);
 
   const mappedData = useMemo(() => {
     const filtered = processedUsers.filter(u => {
@@ -54,7 +65,20 @@ export default function UserPage() {
   return (
     <div className="flex flex-col w-full bg-background min-h-screen">
       <section className="w-full max-w-1600px mx-auto pt-10 px-12">
-        <UniversalHeader title={viewMode === "BANNED" ? "Blacklist" : "USER"} isAdmin={viewMode === "ADMIN"} onActionClick={() => setIsModalOpen(true)} onRefresh={getUsers} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        <UniversalHeader 
+          title={viewMode === "BANNED" ? "Blacklist" : "USER"} 
+          isAdmin={viewMode === "ADMIN"} 
+          onActionClick={() => setIsModalOpen(true)} 
+          onRefresh={getUsers} 
+          searchTerm={searchTerm} 
+          setSearchTerm={setSearchTerm}
+          activeSort={activeSort}
+          onSortClick={(value) => {
+            const opt = USER_SORT_OPTIONS.find(o => o.value === value);
+            setActiveSort(opt || null);
+          }}
+          sortOptions={USER_SORT_OPTIONS}
+        />
         <div className="w-full flex bg-muted/20 border-b border-border h-12">
           {[{ id: "ADMIN", icon: ShieldCheck, label: "Personnel" }, { id: "PUBLIC", icon: Eye, label: "Customers" }, { id: "BANNED", icon: Ban, label: "Banned" }].map(mode => (
             <button key={mode.id} onClick={() => setViewMode(mode.id)} className={`flex items-center gap-3 px-8 text-[10px] font-black uppercase tracking-widest border-r border-border ${viewMode === mode.id ? "bg-background border-b-2 border-b-primary" : "text-muted-foreground hover:bg-muted/30"}`}>

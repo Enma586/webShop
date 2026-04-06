@@ -46,7 +46,7 @@ export function UniversalRow({ item, index, onDelete, onEdit, isAdmin, showDelet
 
   return (
     <tr className={`group transition-all duration-200 border-b border-border/50 last:border-0
-      ${isEven ? "bg-transparent" : "bg-muted/[0.02]"}
+      ${isEven ? "bg-transparent" : "bg-muted/2"}
       ${isLowStock ? 'hover:bg-red-500/5' : 'hover:bg-muted/30'}`}>
 
       <td className="p-5 border-r border-border/50">

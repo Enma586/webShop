@@ -48,10 +48,10 @@ export function AdminProvider({ children }) {
             const res = await getDashboardStatsRequest();
             setStats(res.data.data);
             if (res.data.data.critical_stock > 0) {
-                notify(`CRITICAL_STOCK_DETECTED: ${res.data.data.critical_stock} ITEMS`, "warning");
+                notify(`CRITICAL STOCK DETECTED: ${res.data.data.critical_stock} ITEMS`, "warning");
             }
         } catch (error) {
-            notify("STATS_SYNC_FAILED", "error");
+            notify("STATS SYNC FAILED", "error");
         }
     }, [notify]);
 

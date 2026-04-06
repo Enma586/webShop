@@ -23,6 +23,8 @@ class OrderItemObserver
         $responsibleId = Auth::id() ?? $orderItem->order->user_id;
 
         if ($product) {
+            $oldStock = $product->stock;
+
             // 2. Substract the quantity sold from the product's stock
             $product->decrement('stock', $orderItem->quantity);
 
@@ -30,9 +32,11 @@ class OrderItemObserver
             InventoryLog::create([
                 'product_id'    => $product->id,
                 'user_id'       => $responsibleId,
-                'movement_type' => 'out', // Output of merchandise
+                'movement_type' => 'out',
                 'quantity'      => $orderItem->quantity,
                 'reason'        => "Automatic sale - Order #{$orderItem->order_id}",
+                'old_stock'     => $oldStock,
+                'new_stock'     => $oldStock - $orderItem->quantity,
             ]);
         }
     }

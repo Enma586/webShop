@@ -1,67 +1,58 @@
 import { RefreshCcw } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { useOrder } from "@/context/OrderContext";
+import { UniversalHeader } from "@/components/Shared/DataTable/UniversalHeader";
 import { UniversalTable } from "@/components/Shared/DataTable/UniversalTable";
 import { UniversalFooter } from "@/components/Shared/DataTable/UniversalFooter";
 import OrderFormModal from "./modals/OrderFormModal";
 
-const OrderFilters = ({ filters, setFilters }) => (
-  <div className="flex flex-col md:flex-row items-end gap-6 bg-muted/5 border border-border p-8 mb-8">
-    <div className="flex flex-col gap-2">
-      <span className="text-[9px] font-black uppercase opacity-40 tracking-widest">Date Range</span>
-      <div className="flex items-center gap-2">
-        <input type="date" value={filters.from} onChange={(e) => setFilters({...filters, from: e.target.value})} className="bg-transparent border border-border px-3 py-2 text-[10px] font-black uppercase outline-none text-primary focus:border-primary/50" />
-        <span className="text-[9px] font-black opacity-20">TO</span>
-        <input type="date" value={filters.to} onChange={(e) => setFilters({...filters, to: e.target.value})} className="bg-transparent border border-border px-3 py-2 text-[10px] font-black uppercase outline-none text-primary focus:border-primary/50" />
-      </div>
-    </div>
+const ORDER_FILTER_OPTIONS = [
+  { value: "ALL", label: "ALL_ORDERS" },
+  { value: "PENDING", label: "ONLY_PENDING" },
+  { value: "COMPLETED", label: "ONLY_COMPLETED" },
+  { value: "CANCELLED", label: "ONLY_CANCELLED" },
+];
 
-    <div className="flex flex-col gap-2">
-      <span className="text-[9px] font-black uppercase opacity-40 tracking-widest">Min Amount USD</span>
-      <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-primary">$</span>
-        <input type="number" value={filters.minAmount} onChange={(e) => setFilters({...filters, minAmount: e.target.value})} placeholder="0.00" className="bg-transparent border border-border pl-7 pr-3 py-2 text-[10px] font-black uppercase outline-none text-foreground w-32 focus:border-primary/50" />
-      </div>
-    </div>
-
-    <button onClick={() => setFilters({ from: "", to: "", minAmount: "" })} className="h-9 px-6 border border-primary/20 text-primary text-[9px] font-black uppercase hover:bg-primary hover:text-primary-foreground transition-all ml-auto">
-      Reset Log Filters
-    </button>
-  </div>
-);
+const ORDER_SORT_OPTIONS = [
+  { value: "date_desc", key: "NEWEST", label: "NEWEST_FIRST" },
+  { value: "date_asc", key: "OLDEST", label: "OLDEST_FIRST" },
+  { value: "total_desc", key: "HIGHEST", label: "HIGHEST_TOTAL" },
+  { value: "total_asc", key: "LOWEST", label: "LOWEST_TOTAL" },
+];
 
 export default function OrderPage() {
   const { orders, getOrders } = useOrder();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
-  
-  const [filters, setFilters] = useState({
-    from: "",
-    to: "",
-    minAmount: ""
-  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeFilter, setActiveFilter] = useState("ALL");
+  const [activeSort, setActiveSort] = useState(null);
 
   useEffect(() => { getOrders(); }, [getOrders]);
 
   const processedOrders = useMemo(() => {
     let result = [...(orders || [])];
 
-    if (filters.from && filters.to) {
-      const start = new Date(filters.from);
-      const end = new Date(filters.to);
-      end.setHours(23, 59, 59, 999);
-      result = result.filter(o => {
-        const d = new Date(o.created_at);
-        return d >= start && d <= end;
-      });
+    if (activeFilter !== "ALL") {
+      result = result.filter(o => o.status?.toLowerCase() === activeFilter.toLowerCase());
     }
 
-    if (filters.minAmount) {
-      result = result.filter(o => parseFloat(o.total) >= parseFloat(filters.minAmount));
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(o =>
+        o.order_number?.toLowerCase().includes(term) ||
+        o.user?.name?.toLowerCase().includes(term) ||
+        o.payment_method?.toLowerCase().includes(term)
+      );
     }
 
-    return result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-  }, [orders, filters]);
+    if (activeSort?.key === "NEWEST") result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    if (activeSort?.key === "OLDEST") result.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    if (activeSort?.key === "HIGHEST") result.sort((a, b) => parseFloat(b.total) - parseFloat(a.total));
+    if (activeSort?.key === "LOWEST") result.sort((a, b) => parseFloat(a.total) - parseFloat(b.total));
+
+    return result;
+  }, [orders, searchTerm, activeFilter, activeSort]);
 
   const mappedData = useMemo(() => {
     return processedOrders.map(o => ({
@@ -87,26 +78,24 @@ export default function OrderPage() {
 
   return (
     <div className="flex flex-col w-full bg-background min-h-screen">
-      <header className="w-full max-w-400 mx-auto pt-16 px-12 mb-12">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
-          <div className="relative pl-6">
-            <div className="absolute left-0 top-1 bottom-1 w-1 bg-primary" />
-            <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground leading-none">
-              Sales <span className="text-primary/60">Log</span>
-            </h1>
-          </div>
-          <button
-            onClick={getOrders}
-            className="h-10 px-5 border border-border bg-muted/5 text-foreground hover:bg-foreground hover:text-background font-black uppercase tracking-[0.2em] transition-all active:scale-95 flex items-center gap-2"
-            title="Refresh data"
-          >
-            <RefreshCcw size={14} strokeWidth={3} />
-            Refresh
-          </button>
-        </div>
-
-        <OrderFilters filters={filters} setFilters={setFilters} />
-      </header>
+      <section className="w-full max-w-400 mx-auto pt-16 px-12">
+        <UniversalHeader
+          title="Sales"
+          isAdmin={false}
+          onRefresh={getOrders}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          activeFilter={activeFilter}
+          onFilterChange={setActiveFilter}
+          activeSort={activeSort}
+          onSortClick={(value) => {
+            const opt = ORDER_SORT_OPTIONS.find(o => o.value === value);
+            setActiveSort(opt || null);
+          }}
+          filterOptions={ORDER_FILTER_OPTIONS}
+          sortOptions={ORDER_SORT_OPTIONS}
+        />
+      </section>
 
       <section className="w-full max-w-400 mx-auto px-12 pb-24">
         <UniversalTable 

@@ -3,133 +3,89 @@ import { useAdmin } from "@/context/AdminContext";
 import { UniversalModal } from "@/components/Shared/Modals/UniversalModal";
 import { FormSection } from "@/components/Shared/Form";
 import { useFormatter } from "@/hooks/useFormatter";
-import { 
-  ShieldAlert, 
-  User, 
-  Database, 
-  Clock, 
-  ArrowRight, 
-  Terminal, 
-  Activity
-} from "lucide-react";
+import { User, Clock, Database, ArrowRight, ShieldAlert } from "lucide-react";
 
-export default function AuditDetailModal({ isOpen, onClose, logId }) {
-  const { productLogs } = useAdmin();
-  const { formatDateLiteral, formatCurrency } = useFormatter();
+function PriceChangeRow({ before, after }) {
+  return (
+    <div className="flex items-center gap-4 py-3 px-4 bg-primary/5 border border-primary/20">
+      <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest w-24">Price Change</span>
+      <span className="text-xs font-mono text-muted-foreground line-through decoration-red-500/60">${Number(before).toFixed(2)}</span>
+      <ArrowRight size={12} className="text-primary" />
+      <span className="text-xs font-mono text-primary font-bold">${Number(after).toFixed(2)}</span>
+    </div>
+  );
+}
+
+export default function AuditDetailModal({ isOpen, onClose, logId, source }) {
+  const { productLogs, inventoryLogs } = useAdmin();
+  const { formatDateLiteral } = useFormatter();
   const [log, setLog] = useState(null);
 
   useEffect(() => {
     if (logId && isOpen) {
-      const found = productLogs.find(l => l.id === logId);
-      setLog(found);
-    } else if (!isOpen) setLog(null);
-  }, [logId, isOpen, productLogs]);
+      const found = source === "inventory" 
+        ? inventoryLogs.find(l => l.id === logId) 
+        : productLogs.find(l => l.id === logId);
+      setLog(found || null);
+    }
+  }, [logId, isOpen, source, productLogs, inventoryLogs]);
 
-  if (!log && isOpen) return null;
+  if (!log) return null;
 
-  const rawData = log?.old_data ? (typeof log.old_data === 'string' ? JSON.parse(log.old_data) : log.old_data) : null;
+  const isPriceChange = log.action === "DATA_PATCH_EXECUTED" && log.old_price !== log.new_price;
 
   return (
-    <UniversalModal 
-      isOpen={isOpen} onClose={onClose} 
-      title={`LOG INSPECTION ID ${log?.id}`}
-      subtitle={`SYSTEM SNAPSHOT FOR RECORD ${logId}`}
-      maxWidth="max-w-6xl"
+    <UniversalModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={`AUDIT LOG #${log.id}`}
+      maxWidth="max-w-2xl"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-12 bg-background">
-        
-        <div className="lg:col-span-7 p-8 md:p-12 border-r border-border space-y-10">
-          <div>
-            <FormSection number="01" title="EVENT IDENTIFICATION" />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-muted-foreground flex items-center gap-2 tracking-widest">
-                  <Database size={12}/> Asset Name
-                </label>
-                <p className="text-sm font-black uppercase italic">
-                  {(log?.product?.name || log?.slug || "RECURSO ELIMINADO").replace(/_/g, ' ')}
-                </p>
-                <p className="text-[10px] text-primary font-mono font-bold tracking-tighter">REF ID: {log?.product_id}</p>
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-muted-foreground flex items-center gap-2 tracking-widest">
-                  <Clock size={12}/> Temporal Stamp
-                </label>
-                <p className="text-sm font-black uppercase italic">{formatDateLiteral(log?.created_at)}</p>
-                <p className="text-[10px] text-muted-foreground font-mono italic">UTC: {log?.created_at}</p>
-              </div>
+      <div className="p-8 space-y-8 bg-background">
+        <section className="space-y-6">
+          <FormSection number="01" title="EVENT DETAILS" />
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-1">
+              <label className="text-[9px] font-black text-muted-foreground uppercase flex items-center gap-2"><Database size={10}/> Asset</label>
+              <p className="text-sm font-black uppercase italic">{log.product?.name || log.slug || "N/A"}</p>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[9px] font-black text-muted-foreground uppercase flex items-center gap-2"><Clock size={10}/> Timestamp</label>
+              <p className="text-sm font-black uppercase italic">{formatDateLiteral(log.created_at)}</p>
             </div>
           </div>
 
-          <div>
-            <FormSection number="02" title="DELTA SHIFT ANALYSIS" />
-            <div className="mt-6 p-6 border-2 border-primary/20 bg-primary/5 space-y-6">
-              <div className="flex justify-between items-center">
-                <div className="space-y-1">
-                  <p className="text-[10px] font-black text-muted-foreground uppercase">Previous Value</p>
-                  <p className="text-2xl font-black text-muted-foreground line-through decoration-1">{formatCurrency(log?.old_price)}</p>
-                </div>
-                <ArrowRight className="text-primary animate-pulse" size={24} />
-                <div className="text-right space-y-1">
-                  <p className="text-[10px] font-black text-primary uppercase">Post Commit Value</p>
-                  <p className="text-2xl font-black text-primary italic underline underline-offset-8 decoration-4">{formatCurrency(log?.new_price)}</p>
-                </div>
-              </div>
+          <div className="pt-2">
+            <label className="text-[9px] font-black text-muted-foreground uppercase block mb-2">Action Executed</label>
+            <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20">
+              {log.action?.replace(/_/g, " ")}
+            </span>
+          </div>
+        </section>
+
+        {isPriceChange && (
+          <section className="space-y-4">
+            <FormSection number="02" title="FINANCIAL DATA PATCH" />
+            <PriceChangeRow before={log.old_price} after={log.new_price} />
+          </section>
+        )}
+
+        <section className="space-y-4">
+          <FormSection number={isPriceChange ? "03" : "02"} title="OPERATOR" />
+          <div className="flex items-center gap-4 p-4 border border-border bg-muted/5">
+            <div className="size-10 bg-primary/10 flex items-center justify-center border border-primary/20">
+              <User size={18} className="text-primary" />
+            </div>
+            <div>
+              <p className="text-xs font-black uppercase">{log.user?.username || "SYSTEM"}</p>
+              <p className="text-[10px] text-muted-foreground font-mono">{log.user?.email || "internal@system.sh"}</p>
             </div>
           </div>
+        </section>
 
-          <div>
-            <FormSection number="03" title="RESPONSIBLE ENTITY" />
-            <div className="flex items-center gap-6 mt-6 p-6 border border-border bg-muted/5">
-              <div className="size-12 bg-primary/10 flex items-center justify-center border border-primary/20">
-                <User className="size-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-[10px] font-black text-primary uppercase tracking-widest italic">Authorized Operator</p>
-                <p className="text-sm font-black uppercase">{(log?.user?.username || "SYSTEM ROOT").replace(/_/g, ' ')}</p>
-                <p className="text-[10px] text-muted-foreground font-mono italic">{log?.user?.email || "internal task @ domain"}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="lg:col-span-5 p-8 md:p-12 bg-muted/10 space-y-10">
-          <div>
-            <FormSection number="04" title="SYSTEM PROTOCOL ACTION" />
-            <div className="space-y-6 mt-6">
-              <div className="grid gap-2">
-                <label className="text-[10px] font-black uppercase text-muted-foreground flex items-center gap-2 italic">
-                  <Activity size={12}/> Protocol Type
-                </label>
-                <div className="p-4 border border-primary/30 bg-primary/10 text-xs font-black uppercase text-primary tracking-widest italic">
-                  {(log?.action || "UNKNOWN ACTION").replace(/_/g, ' ')}
-                </div>
-              </div>
-
-              <div className="grid gap-2">
-                <label className="text-[10px] font-black uppercase text-muted-foreground flex items-center gap-2 italic">
-                  <Terminal size={12}/> Raw Data Snapshot
-                </label>
-                <div className="p-4 bg-black border border-primary/10 font-mono text-[9px] text-primary/80 overflow-y-auto max-h-62.5 custom-scrollbar">
-                  {rawData ? (
-                    <pre className="whitespace-pre-wrap break-all leading-tight opacity-80">
-                      {JSON.stringify(rawData, null, 2)}
-                    </pre>
-                  ) : (
-                    <p className="italic opacity-50 text-center py-4 uppercase tracking-widest">No Metadata Available</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="mt-8 p-4 border border-primary/20 bg-primary/5 flex items-center gap-3">
-                <ShieldAlert className="text-primary size-5" />
-                <div>
-                  <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Integrity Seal Active</p>
-                  <p className="text-[9px] text-muted-foreground uppercase font-bold">Non Editable Historic Record</p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="pt-4 flex items-center gap-2 opacity-40">
+          <ShieldAlert size={12} />
+          <span className="text-[8px] font-black uppercase tracking-[0.2em]">Authentic Historic Record - Immutable</span>
         </div>
       </div>
     </UniversalModal>

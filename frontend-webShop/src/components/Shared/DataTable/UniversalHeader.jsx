@@ -19,8 +19,14 @@ export function UniversalHeader({
   onFilterChange,
   onSortClick,
   activeSort,
-  activeFilter = "ALL"
+  activeFilter = "ALL",
+  filterOptions,
+  sortOptions,
 }) {
+  const showFilter = filterOptions && filterOptions.length > 0;
+  const showSort = sortOptions && sortOptions.length > 0;
+  const showControls = showFilter || showSort;
+
   return (
     <header className="w-full flex flex-col gap-8 mb-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 px-1">
@@ -79,84 +85,66 @@ export function UniversalHeader({
           )}
         </div>
 
-        <div className="flex items-center w-full md:w-auto">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className={`h-12 px-6 rounded-none text-[10px] font-black uppercase tracking-widest gap-2 border-r border-border transition-colors ${
-                  activeFilter !== "ALL" ? "bg-primary/10 text-primary" : "hover:bg-primary/10"
-                }`}
-              >
-                <Filter size={14} />
-                Filter
-                {activeFilter !== "ALL" && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="rounded-none border-border bg-background min-w-200px">
-              <DropdownMenuItem
-                className={`text-[10px] font-black uppercase tracking-widest ${activeFilter === "ALL" ? "text-primary" : ""}`}
-                onClick={() => onFilterChange("ALL")}
-              >
-                ALL_RESOURCES
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className={`text-[10px] font-black uppercase tracking-widest ${activeFilter === "ACTIVE" ? "text-primary" : ""}`}
-                onClick={() => onFilterChange("ACTIVE")}
-              >
-                ONLY_ACTIVE
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className={`text-[10px] font-black uppercase tracking-widest ${activeFilter === "OUT_OF_STOCK" ? "text-primary" : ""}`}
-                onClick={() => onFilterChange("OUT_OF_STOCK")}
-              >
-                OUT OF STOCK
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        {showControls && (
+          <div className="flex items-center w-full md:w-auto">
+            {showFilter && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className={`h-12 px-6 rounded-none text-[10px] font-black uppercase tracking-widest gap-2 border-r border-border transition-colors ${
+                      activeFilter !== "ALL" ? "bg-primary/10 text-primary" : "hover:bg-primary/10"
+                    }`}
+                  >
+                    <Filter size={14} />
+                    Filter
+                    {activeFilter !== "ALL" && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="rounded-none border-border bg-background min-w-200px">
+                  {filterOptions.map((opt) => (
+                    <DropdownMenuItem
+                      key={opt.value}
+                      className={`text-[10px] font-black uppercase tracking-widest ${activeFilter === opt.value ? "text-primary" : ""}`}
+                      onClick={() => onFilterChange?.(opt.value)}
+                    >
+                      {opt.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className={`h-12 px-6 rounded-none text-[10px] font-black uppercase tracking-widest gap-2 transition-colors ${
-                  activeSort ? "bg-primary/10 text-primary" : "hover:bg-primary/10"
-                }`}
-              >
-                <SlidersHorizontal size={14} />
-                {activeSort ? `SORT:${activeSort.key}` : "SORT BY"}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="rounded-none border-border bg-background min-w-200px">
-              <DropdownMenuItem
-                className={`text-[10px] font-black uppercase tracking-widest ${activeSort?.key === 'NAME' ? "text-primary" : ""}`}
-                onClick={() => onSortClick('name')}
-              >
-                BY NAME
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className={`text-[10px] font-black uppercase tracking-widest ${activeSort?.key === 'VALUE' ? "text-primary" : ""}`}
-                onClick={() => onSortClick('price')}
-              >
-                BY VALUE
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className={`text-[10px] font-black uppercase tracking-widest ${activeSort?.key === 'VOLUME' ? "text-primary" : ""}`}
-                onClick={() => onSortClick('stock')}
-              >
-                BY VOLUME
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        <div className="ml-auto hidden lg:flex items-center gap-4 pr-6 opacity-40">
-          <span className="text-[9px] font-mono uppercase tracking-[0.3em]">
-            Terminal: <span className="text-primary">Operational</span>
-          </span>
-        </div>
+            {showSort && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className={`h-12 px-6 rounded-none text-[10px] font-black uppercase tracking-widest gap-2 transition-colors ${
+                      activeSort ? "bg-primary/10 text-primary" : "hover:bg-primary/10"
+                    }`}
+                  >
+                    <SlidersHorizontal size={14} />
+                    {activeSort ? `SORT:${activeSort.key}` : "SORT BY"}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="rounded-none border-border bg-background min-w-200px">
+                  {sortOptions.map((opt) => (
+                    <DropdownMenuItem
+                      key={opt.value}
+                      className={`text-[10px] font-black uppercase tracking-widest ${activeSort?.key === opt.key ? "text-primary" : ""}`}
+                      onClick={() => onSortClick?.(opt.value)}
+                    >
+                      {opt.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
+        )}
       </div>
     </header>
   );

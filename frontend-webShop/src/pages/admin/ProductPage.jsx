@@ -6,6 +6,22 @@ import { UniversalFooter } from "@/components/Shared/DataTable/UniversalFooter";
 import ProductFormModal from "./modals/ProductFormModal";
 import ConfirmDeleteModal from '@/components/Shared/Modals/ConfirmDeleteModal';
 
+const PRODUCT_FILTER_OPTIONS = [
+  { value: "ALL", label: "ALL_RESOURCES" },
+  { value: "ACTIVE", label: "ONLY_ACTIVE" },
+  { value: "OUT_OF_STOCK", label: "OUT_OF_STOCK" },
+  { value: "LOW_STOCK", label: "LOW_STOCK" },
+];
+
+const PRODUCT_SORT_OPTIONS = [
+  { value: "name_asc", key: "NAME_AZ", label: "NAME_A_TO_Z" },
+  { value: "name_desc", key: "NAME_ZA", label: "NAME_Z_TO_A" },
+  { value: "price_asc", key: "VALUE_LOW", label: "VALUE_LOW_HIGH" },
+  { value: "price_desc", key: "VALUE_HIGH", label: "VALUE_HIGH_LOW" },
+  { value: "stock_asc", key: "VOLUME_LOW", label: "VOLUME_LOW_HIGH" },
+  { value: "stock_desc", key: "VOLUME_HIGH", label: "VOLUME_HIGH_LOW" },
+];
+
 export default function ProductPage() {
   const { products, getProducts, deleteProduct } = useProduct();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -14,6 +30,7 @@ export default function ProductPage() {
   const [productToDelete, setProductToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("ALL");
+  const [activeSort, setActiveSort] = useState(null);
 
   useEffect(() => { getProducts(); }, []);
 
@@ -21,13 +38,19 @@ export default function ProductPage() {
     let result = Array.isArray(products) ? [...products] : [];
     if (searchTerm) result = result.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    // Filtros de stock
     if (filterType === "ACTIVE") result = result.filter(p => p.stock > 0);
     if (filterType === "OUT_OF_STOCK") result = result.filter(p => p.stock <= 0);
     if (filterType === "LOW_STOCK") result = result.filter(p => p.stock > 0 && p.stock <= 10);
+
+    if (activeSort?.key === "NAME_AZ") result.sort((a, b) => a.name.localeCompare(b.name));
+    if (activeSort?.key === "NAME_ZA") result.sort((a, b) => b.name.localeCompare(a.name));
+    if (activeSort?.key === "VALUE_LOW") result.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+    if (activeSort?.key === "VALUE_HIGH") result.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+    if (activeSort?.key === "VOLUME_LOW") result.sort((a, b) => a.stock - b.stock);
+    if (activeSort?.key === "VOLUME_HIGH") result.sort((a, b) => b.stock - a.stock);
     
     return result;
-  }, [products, searchTerm, filterType]);
+  }, [products, searchTerm, filterType, activeSort]);
 
   const mappedData = useMemo(() => {
     return processedProducts.map(p => ({
@@ -35,16 +58,9 @@ export default function ProductPage() {
       name: p.name,
       subtitle: p.category?.name?.toUpperCase() || "GENERAL_STOCK",
       image: p.image,
-      
-      // CLAVE: Pasamos el stock como número puro para que UniversalRow haga la lógica
       stock: p.stock, 
-      
-      // Columnas visuales de la tabla
-      column1: p.name, // La primera columna suele ser el nombre/img en UniversalRow
-      column2: `$${parseFloat(p.price).toFixed(2)}`,
-      column3: p.stock, // Dejamos solo el número aquí para que se resalte en rojo si es bajo
-      
-      // Estados para UniversalRow
+      column1: `$${parseFloat(p.price).toFixed(2)}`,
+      column2: p.stock,
       status: p.stock === 0 ? "DEPLETED" : (p.stock <= 10 ? "CRITICAL" : "ACTIVE"),
       active: p.stock > 0,
     }));
@@ -61,7 +77,15 @@ export default function ProductPage() {
           onRefresh={getProducts}
           searchTerm={searchTerm} 
           setSearchTerm={setSearchTerm} 
-          onFilterChange={setFilterType} 
+          onFilterChange={setFilterType}
+          activeFilter={filterType}
+          activeSort={activeSort}
+          onSortClick={(value) => {
+            const opt = PRODUCT_SORT_OPTIONS.find(o => o.value === value);
+            setActiveSort(opt || null);
+          }}
+          filterOptions={PRODUCT_FILTER_OPTIONS}
+          sortOptions={PRODUCT_SORT_OPTIONS}
         />
       </section>
 
@@ -70,7 +94,7 @@ export default function ProductPage() {
           data={mappedData} 
           columns={["Resource Detail", "Unit Val", "Stock Level", "Status", "Execute"]} 
           isAdmin={true} 
-          showDelete={true} // Aseguramos que se pase la prop para ver el botón de borrar
+          showDelete={true}
           onDelete={(id) => { 
             const prod = products.find(p => p.id === id);
             setProductToDelete(prod); 

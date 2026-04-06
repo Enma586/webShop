@@ -18,7 +18,9 @@ class InventoryLog extends Model
         'user_id',
         'movement_type',
         'quantity',
-        'reason'
+        'reason',
+        'old_stock',
+        'new_stock',
     ];
 
     /**
