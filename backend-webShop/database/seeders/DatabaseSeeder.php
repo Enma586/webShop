@@ -7,7 +7,8 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Department;
 use App\Models\Municipality;
-use App\Models\District; // Importante añadir el modelo
+use App\Models\District;
+use App\Models\Address;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -16,6 +17,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // 1. Crear usuario administrador
         User::create([
             'name' => 'Enma Admin',
             'username' => 'enma_style',
@@ -24,6 +26,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
         ]);
 
+        // 2. Crear jerarquia territorial
         $map = [
             'Ahuachapán' => [
                 'Ahuachapán Norte' => ['Atiquizaya', 'El Refugio', 'San Lorenzo', 'Turín'],
@@ -49,8 +52,6 @@ class DatabaseSeeder extends Seeder
                 'San Salvador Centro' => ['San Salvador', 'Ayutuxtepeque', 'Mejicanos', 'Cuscatancingo', 'Ciudad Delgado'],
                 'San Salvador Sur' => ['Panchimalco', 'Rosario de Mora', 'San Marcos', 'Santo Tomás', 'Santiago Texacuangos']
             ],
-            // Puedes seguir el mismo patrón para los demás departamentos si lo deseas. 
-            // Para ahorrar espacio, aquí te dejo el resto con un municipio general que contiene los distritos:
             'La Libertad' => ['La Libertad Sur' => ['Santa Tecla', 'Comasagua'], 'La Libertad Centro' => ['San Juan Opico', 'Ciudad Arce']],
             'San Miguel' => ['San Miguel Centro' => ['San Miguel', 'Comacarán', 'Uluazapa']],
             'La Unión' => ['La Unión Sur' => ['La Unión', 'Conchagua', 'Intipucá', 'Meanguera del Golfo', 'San Alejo', 'Yayantique', 'Yucuaiquín']],
@@ -60,7 +61,6 @@ class DatabaseSeeder extends Seeder
             $dep = Department::create(['name' => $depName]);
 
             foreach ($municipalities as $muniName => $districts) {
-                // Si el valor no es un array (para los departamentos que no completamos arriba), creamos un genérico
                 if (!is_array($districts)) {
                     $muniName = $depName . " Unique";
                     $districts = $municipalities;
@@ -80,8 +80,33 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        // --- SECCIÓN DE PRODUCTOS (Manteniendo tu lógica previa) ---
+        // 3. Crear clientes de prueba con direcciones
+        $allDistricts = District::with('municipality')->get();
 
+        if ($allDistricts->isNotEmpty()) {
+            for ($i = 1; $i <= 10; $i++) {
+                $customer = User::create([
+                    'name' => 'Cliente ' . $i,
+                    'username' => 'cliente_' . $i,
+                    'email' => 'cliente' . $i . '@shop.com',
+                    'password' => Hash::make('password123'),
+                    'role' => 'customer',
+                ]);
+
+                $randomDistrict = $allDistricts->random();
+
+                Address::create([
+                    'user_id' => $customer->id,
+                    'department_id' => $randomDistrict->municipality->department_id,
+                    'municipality_id' => $randomDistrict->municipality_id,
+                    'district_id' => $randomDistrict->id,
+                    'address_line' => 'Avenida ' . rand(1, 50) . ', Casa #' . rand(1, 100),
+                    'phone' => '7' . rand(1111111, 9999999),
+                ]);
+            }
+        }
+
+        // 4. Crear categorias y productos
         $genderCatalog = [
             'MEN' => [
                 'T-Shirts' => ['Classic White Tee', 'Oversized Black Shirt', 'Graphic Urban Tee'],
@@ -116,7 +141,7 @@ class DatabaseSeeder extends Seeder
                         'description' => "Premium {$pName} specifically crafted for our {$genderName} collection.",
                         'price' => rand(20, 150),
                         'stock' => rand(15, 60),
-                        'image' => null
+                        'image' => 'https://picsum.photos/seed/' . urlencode($genderName . '-' . $pName) . '/400/400',
                     ]);
                 }
             }
@@ -148,7 +173,7 @@ class DatabaseSeeder extends Seeder
                     'description' => "Essential {$pName} to complete your identity setup.",
                     'price' => rand(15, 85),
                     'stock' => rand(20, 100),
-                    'image' => null
+                    'image' => 'https://picsum.photos/seed/' . urlencode('acc-' . $pName) . '/400/400',
                 ]);
             }
         }
@@ -174,9 +199,14 @@ class DatabaseSeeder extends Seeder
                     'description' => "Exclusive asset from the {$slug} unisex drop.",
                     'price' => rand(45, 190),
                     'stock' => rand(5, 25),
-                    'image' => null
+                    'image' => 'https://picsum.photos/seed/' . urlencode($slug . '-' . $itemName) . '/400/400',
                 ]);
             }
         }
+
+        // 5. Ejecutar las transacciones de prueba usando los clientes generados
+        $this->call([
+            DummyOrdersSeeder::class,
+        ]);
     }
 }
